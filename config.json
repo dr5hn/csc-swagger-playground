@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Country State City API",
-    "description": "Geographic data API providing countries, states, and cities with tiered access levels.\n\n## Authentication\nAll endpoints require an API key passed via the `X-CSCAPI-KEY` header. Get your free key at [app.countrystatecity.in](https://app.countrystatecity.in).\n\n## Pricing & Limits\nThe fields returned, endpoints available, and request quotas depend on your plan. See current tiers and limits at:\n\n**[app.countrystatecity.in/pricing](https://app.countrystatecity.in/pricing)**\n\n## Data Access Levels\nEach plan includes a data access level that controls which fields are returned:\n\n- **Basic** — Core fields: id, name, iso2, iso3, phonecode, capital, currency, coordinates, region, timezones, emoji\n- **Coordinates** — Basic + extended metadata (population, tld, nationality, currency details, postal codes, etc.)\n- **Full** — All fields including translations (18+ languages) and wikiDataId\n\nFields restricted to higher tiers are marked in each schema below.\n\n## Feature Gating\nSome endpoints require a minimum tier. Restricted endpoints return `403` with an `upgradeUrl` when accessed on a lower plan. Check the [pricing page](https://app.countrystatecity.in/pricing) for current feature availability.\n\n## Rate Limiting\nRequests exceeding your daily or monthly quota receive a `429` response with your current limit, period, tier, and an upgrade URL.\n\n## Caching\nAll responses include `Cache-Control`, `ETag`, and `X-Cache` (HIT/MISS) headers. Use `If-None-Match` for conditional requests to receive `304 Not Modified`.\n\n## Usage Headers\nAll `/v1/*` responses include usage and plan headers:\n- `X-CSC-Plan` — your current tier\n- `X-CSC-Daily-Used` / `X-CSC-Daily-Limit` — today's usage vs limit\n- `X-CSC-Monthly-Used` / `X-CSC-Monthly-Limit` — this month's usage vs limit\n\nUse these to monitor consumption without a separate API call.",
+    "description": "Geographic data API providing countries, states, cities, timezones, currencies, and phone dial codes with tiered access levels.\n\n## Authentication\nAll endpoints require an API key passed via the `X-CSCAPI-KEY` header. Get your free key at [app.countrystatecity.in](https://app.countrystatecity.in).\n\n## Pricing & Limits\nThe fields returned, endpoints available, and request quotas depend on your plan. See current tiers and limits at:\n\n**[app.countrystatecity.in/pricing](https://app.countrystatecity.in/pricing)**\n\n## Data Access Levels\nEach plan includes a data access level that controls which fields are returned:\n\n- **Basic** — Core fields: id, name, iso2, iso3, phonecode, capital, currency, coordinates, region, timezones, emoji\n- **Coordinates** — Basic + extended metadata (population, tld, nationality, currency details, postal codes, etc.)\n- **Full** — All fields including translations (18+ languages) and wikiDataId\n\nFields restricted to higher tiers are marked in each schema below.\n\n## Feature Gating\nSome endpoints require a minimum tier. Restricted endpoints return `403` with an `upgradeUrl` when accessed on a lower plan. Check the [pricing page](https://app.countrystatecity.in/pricing) for current feature availability.\n\n## Rate Limiting\nRequests exceeding your daily or monthly quota receive a `429` response with your current limit, period, tier, and an upgrade URL.\n\n## Caching\nAll responses include `Cache-Control`, `ETag`, and `X-Cache` (HIT/MISS) headers. Use `If-None-Match` for conditional requests to receive `304 Not Modified`.\n\n## Usage Headers\nAll `/v1/*` responses include usage and plan headers:\n- `X-CSC-Plan` — your current tier\n- `X-CSC-Daily-Used` / `X-CSC-Daily-Limit` — today's usage vs limit\n- `X-CSC-Monthly-Used` / `X-CSC-Monthly-Limit` — this month's usage vs limit\n\nUse these to monitor consumption without a separate API call.",
     "contact": {
       "name": "Darshan Gada (dr5hn)",
       "email": "gadadarshan@gmail.com",
@@ -12,7 +12,7 @@
       "name": "Creative Commons Attribution 4.0",
       "url": "https://creativecommons.org/licenses/by/4.0/"
     },
-    "version": "2.2.0"
+    "version": "2.3.0"
   },
   "servers": [
     {
@@ -36,6 +36,26 @@
     {
       "name": "Regions",
       "description": "Geographic regions and subregions — continental groupings of countries"
+    },
+    {
+      "name": "Timezones",
+      "description": "IANA timezone lookup by country, state, or city — includes UTC offset and DST status"
+    },
+    {
+      "name": "Currencies",
+      "description": "ISO 4217 currency data — list all currencies or look up by country"
+    },
+    {
+      "name": "Phone",
+      "description": "International dial codes — list, lookup by country, and E.164 phone number parsing"
+    },
+    {
+      "name": "ISO",
+      "description": "ISO 3166 code lookup and conversion — country (alpha-2/3/numeric) and state (ISO 3166-2)"
+    },
+    {
+      "name": "Search",
+      "description": "Typo-tolerant fuzzy search across cities, states, and countries"
     }
   ],
   "paths": {
@@ -52,6 +72,20 @@
             "description": "Search filter. Case-insensitive match on `name` and `native` fields. Min 2 characters. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "india" }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,iso2,iso3" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. E.g. `name:asc,population:desc`. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name:asc" }
           }
         ],
         "responses": {
@@ -95,6 +129,13 @@
             "description": "ISO2 code (e.g., `IN`) or numeric ID of the country",
             "required": true,
             "schema": { "type": "string", "example": "IN" }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,iso2,capital" }
           }
         ],
         "responses": {
@@ -142,7 +183,21 @@
             "in": "query",
             "description": "Search filter. Case-insensitive match on `name` and `native` fields. Min 2 characters. **Requires Supporter+ plan.**",
             "required": false,
-            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "india" }
+            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "maha" }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,iso2" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name:asc" }
           }
         ],
         "responses": {
@@ -194,6 +249,13 @@
             "description": "ISO2 code of the state (e.g., `MH`)",
             "required": true,
             "schema": { "type": "string", "example": "MH" }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,iso2,country_code" }
           }
         ],
         "responses": {
@@ -248,7 +310,21 @@
             "in": "query",
             "description": "Search filter. Case-insensitive match on `name` and `native` fields. Min 2 characters. **Requires Supporter+ plan.**",
             "required": false,
-            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "india" }
+            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "mum" }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,latitude,longitude" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name:asc" }
           }
         ],
         "responses": {
@@ -299,7 +375,21 @@
             "in": "query",
             "description": "Search filter. Case-insensitive match on `name` and `native` fields. Min 2 characters. **Requires Supporter+ plan.**",
             "required": false,
-            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "india" }
+            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "mum" }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,latitude,longitude" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name:asc" }
           }
         ],
         "responses": {
@@ -344,7 +434,21 @@
             "in": "query",
             "description": "Search filter. Case-insensitive match on `name` and `native` fields. Min 2 characters. **Requires Supporter+ plan.**",
             "required": false,
-            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "india" }
+            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "maha" }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,iso2,country_code" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name:asc" }
           }
         ],
         "responses": {
@@ -389,6 +493,20 @@
             "description": "Search filter on region name. Min 2 characters. **Requires Supporter+ plan with search feature.**",
             "required": false,
             "schema": { "type": "string", "minLength": 2, "maxLength": 100 }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name:asc" }
           }
         ],
         "responses": {
@@ -433,6 +551,13 @@
             "description": "Numeric region ID",
             "required": true,
             "schema": { "type": "integer", "example": 3 }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,wikiDataId" }
           }
         ],
         "responses": {
@@ -482,6 +607,20 @@
             "description": "Search filter on subregion name. Min 2 characters.",
             "required": false,
             "schema": { "type": "string", "minLength": 2, "maxLength": 100 }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,region_id" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name:asc" }
           }
         ],
         "responses": {
@@ -526,6 +665,13 @@
             "description": "Numeric subregion ID",
             "required": true,
             "schema": { "type": "integer", "example": 14 }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,region_id" }
           }
         ],
         "responses": {
@@ -575,6 +721,20 @@
             "description": "Search filter on country name. Min 2 characters.",
             "required": false,
             "schema": { "type": "string", "minLength": 2, "maxLength": 100 }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name,iso2" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
+            "required": false,
+            "schema": { "type": "string", "example": "name:asc" }
           }
         ],
         "responses": {
@@ -596,6 +756,635 @@
                   "type": "array",
                   "items": { "$ref": "#/components/schemas/Country" }
                 }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/timezone/{ciso}": {
+      "get": {
+        "tags": ["Timezones"],
+        "summary": "Get timezone by country",
+        "description": "Returns the canonical IANA timezone for a country, resolved via the capital city. Includes current UTC offset and DST status.\n\n**Availability:** All plans (Community and above). Responses cached server-side for 24 hours.",
+        "operationId": "getTimezoneByCountry",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "description": "ISO 3166-1 alpha-2 (e.g., `IN`), alpha-3 (e.g., `IND`), or numeric country ID (e.g., `101`)",
+            "required": true,
+            "schema": { "type": "string", "example": "IN" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timezone information for the country",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TimezoneInfo" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/timezone/{ciso}/{siso}": {
+      "get": {
+        "tags": ["Timezones"],
+        "summary": "Get timezone by state",
+        "description": "Returns the canonical IANA timezone for a specific state or province within a country.\n\n**Availability:** All plans (Community and above). Responses cached server-side for 24 hours.",
+        "operationId": "getTimezoneByState",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "description": "ISO 3166-1 alpha-2 (e.g., `US`), alpha-3 (e.g., `USA`), or numeric country ID",
+            "required": true,
+            "schema": { "type": "string", "example": "US" }
+          },
+          {
+            "name": "siso",
+            "in": "path",
+            "description": "State/province code in local subdivision format (e.g., `CA` for California)",
+            "required": true,
+            "schema": { "type": "string", "example": "CA" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timezone information for the state",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TimezoneInfo" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/timezone/{ciso}/{siso}/{city_id}": {
+      "get": {
+        "tags": ["Timezones"],
+        "summary": "Get timezone by city",
+        "description": "Returns the canonical IANA timezone for a specific city. The city ID is validated against the given country and state to prevent cross-jurisdiction lookups.\n\n**Availability:** All plans (Community and above). Responses cached server-side for 24 hours.",
+        "operationId": "getTimezoneByCity",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "description": "ISO 3166-1 alpha-2 (e.g., `US`), alpha-3, or numeric country ID",
+            "required": true,
+            "schema": { "type": "string", "example": "US" }
+          },
+          {
+            "name": "siso",
+            "in": "path",
+            "description": "State/province code (e.g., `CA`)",
+            "required": true,
+            "schema": { "type": "string", "example": "CA" }
+          },
+          {
+            "name": "city_id",
+            "in": "path",
+            "description": "Numeric city ID (from the cities endpoints)",
+            "required": true,
+            "schema": { "type": "integer", "example": 24295 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timezone information for the city",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TimezoneInfo" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/currencies": {
+      "get": {
+        "tags": ["Currencies"],
+        "summary": "List all currencies",
+        "description": "Returns currency data for all countries. Use the optional `?code=` parameter for a reverse lookup — returns all countries using that ISO 4217 currency code.\n\n**Availability:** Supporter+ plan required. Responses cached server-side for 24 hours.",
+        "operationId": "listCurrencies",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "ISO 4217 currency code to filter by (e.g., `EUR`). Returns all countries using this currency.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 3, "maxLength": 3, "example": "EUR" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of currency entries ordered by country ISO2 code",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CurrencyInfo" }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid currency code format",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/currency/{ciso}": {
+      "get": {
+        "tags": ["Currencies"],
+        "summary": "Get currency by country",
+        "description": "Returns the official ISO 4217 currency for a single country.\n\n**Availability:** Supporter+ plan required. Responses cached server-side for 24 hours.",
+        "operationId": "getCurrencyByCountry",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "description": "ISO 3166-1 alpha-2 (e.g., `IN`), alpha-3 (e.g., `IND`), or numeric country ID (e.g., `101`)",
+            "required": true,
+            "schema": { "type": "string", "example": "IN" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Currency data for the country",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CurrencyInfo" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/phone": {
+      "get": {
+        "tags": ["Phone"],
+        "summary": "List all dial codes",
+        "description": "Returns international dial codes for all countries. Use the optional `?code=` parameter for a reverse lookup — returns all countries sharing a given dial code (useful for NANP `+1` territories which are grouped by area code).\n\n**Availability:** Supporter+ plan required. Responses cached server-side for 24 hours.",
+        "operationId": "listDialCodes",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "Dial code to filter by. Accepts with or without `+` prefix (`+91` or `91`), 1–4 digits, leading zeros are stripped.",
+            "required": false,
+            "schema": { "type": "string", "example": "+1" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of dial code entries ordered by country ISO2 code",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DialCode" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/phone/{ciso}": {
+      "get": {
+        "tags": ["Phone"],
+        "summary": "Get dial code by country",
+        "description": "Returns the international dial code for a single country.\n\n**Availability:** Supporter+ plan required. Responses cached server-side for 24 hours.",
+        "operationId": "getDialCodeByCountry",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "description": "ISO 3166-1 alpha-2 (e.g., `IN`), alpha-3 (e.g., `IND`), or numeric country ID (e.g., `101`). Case-insensitive.",
+            "required": true,
+            "schema": { "type": "string", "example": "IN" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dial code for the country",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DialCode" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/phone/parse": {
+      "get": {
+        "tags": ["Phone"],
+        "summary": "Parse phone number",
+        "description": "Parses an E.164-formatted phone number to identify the originating country and extract the national number. Uses a hierarchical prefix system; for NANP (`+1`) numbers, performs area-code matching to distinguish territories.\n\n**Note:** The response echoes the phone number (`e164`) which is PII. This endpoint returns `Cache-Control: no-store` and no `ETag` header to prevent caching.\n\n**Availability:** Supporter+ plan required.",
+        "operationId": "parsePhoneNumber",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "query",
+            "description": "E.164-formatted phone number — `+` followed by 5–15 digits (e.g., `+14155552671`)",
+            "required": true,
+            "schema": { "type": "string", "example": "+14155552671" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Parsed phone number with country identification",
+            "headers": {
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PhoneParsed" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid E.164 format (missing `+`, wrong digit count)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/iso/country": {
+      "get": {
+        "tags": ["ISO"],
+        "summary": "Lookup country by ISO code",
+        "description": "Resolves a country record from any ISO 3166-1 identifier. Provide **exactly one** of `iso2`, `iso3`, or `numeric`; sending zero or more than one returns `400`.\n\n**Availability:** Starter+ plan required. Responses cached server-side for 1 hour.",
+        "operationId": "lookupCountryByIso",
+        "parameters": [
+          {
+            "name": "iso2",
+            "in": "query",
+            "description": "ISO 3166-1 alpha-2 code (e.g., `US`). Provide exactly one of `iso2`, `iso3`, or `numeric`.",
+            "required": false,
+            "schema": { "type": "string", "example": "US" }
+          },
+          {
+            "name": "iso3",
+            "in": "query",
+            "description": "ISO 3166-1 alpha-3 code (e.g., `USA`). Provide exactly one of `iso2`, `iso3`, or `numeric`.",
+            "required": false,
+            "schema": { "type": "string", "example": "USA" }
+          },
+          {
+            "name": "numeric",
+            "in": "query",
+            "description": "ISO 3166-1 numeric code, 1–3 digits (e.g., `840`). Provide exactly one of `iso2`, `iso3`, or `numeric`.",
+            "required": false,
+            "schema": { "type": "string", "example": "840" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Country record with all ISO identifiers",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IsoCountry" }
+              }
+            }
+          },
+          "400": {
+            "description": "Zero or multiple ISO parameters provided",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/iso/state": {
+      "get": {
+        "tags": ["ISO"],
+        "summary": "Lookup state by ISO 3166-2 code",
+        "description": "Resolves a state/province record from its ISO 3166-2 subdivision code (e.g., `US-CA`, `IN-MH`). Case-insensitive. Falls back to the legacy `iso2` column for older entries where `iso3166_2` is null.\n\n**Availability:** Starter+ plan required. Responses cached server-side for 1 hour.",
+        "operationId": "lookupStateByIso",
+        "parameters": [
+          {
+            "name": "iso",
+            "in": "query",
+            "description": "ISO 3166-2 subdivision code (e.g., `US-CA` or `IN-MH`). Case-insensitive.",
+            "required": true,
+            "schema": { "type": "string", "example": "US-CA" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "State record with ISO identifiers and country reference",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IsoState" }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or malformed `iso` parameter",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/iso/country/convert": {
+      "get": {
+        "tags": ["ISO"],
+        "summary": "Convert ISO country code",
+        "description": "Translates a country code between ISO 3166-1 formats: alpha-2 ↔ alpha-3 ↔ numeric. All three conversion directions are supported.\n\n**Availability:** Starter+ plan required.",
+        "operationId": "convertIsoCountryCode",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Source format",
+            "required": true,
+            "schema": { "type": "string", "enum": ["iso2", "iso3", "numeric"], "example": "iso2" }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Target format (must differ from `from`)",
+            "required": true,
+            "schema": { "type": "string", "enum": ["iso2", "iso3", "numeric"], "example": "iso3" }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "The code to convert (e.g., `US` when `from=iso2`)",
+            "required": true,
+            "schema": { "type": "string", "example": "US" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Converted ISO code",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IsoConvert" }
+              }
+            }
+          },
+          "400": {
+            "description": "Mismatched `from`/`to` formats, invalid value, or `from` equals `to`",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
+    },
+    "/search/fuzzy": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Fuzzy search",
+        "description": "Typo-tolerant search for cities, states, or countries using PostgreSQL trigram similarity. Matches against both English and native-script names. Results are ranked by `match_score` descending.\n\nExample: `?q=Banglore&type=city&country=IN` resolves to Bangalore.\n\n**Availability:** Professional+ plan required.",
+        "operationId": "fuzzySearch",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query — 2 to 100 characters. Case-insensitive.",
+            "required": true,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "Banglore" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Entity type to search",
+            "required": false,
+            "schema": { "type": "string", "enum": ["city", "state", "country"], "default": "city", "example": "city" }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "description": "ISO 3166-1 alpha-2 country code to narrow the search (e.g., `IN`). Ignored when `type=country`.",
+            "required": false,
+            "schema": { "type": "string", "example": "IN" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of results to return (1–50)",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10, "example": 10 }
+          },
+          {
+            "name": "threshold",
+            "in": "query",
+            "description": "Minimum trigram similarity score (0.1–1.0). Lower values yield looser matches.",
+            "required": false,
+            "schema": { "type": "number", "minimum": 0.1, "maximum": 1.0, "default": 0.3, "example": 0.3 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching results ranked by similarity score",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/FuzzyResult" }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid `q` parameter",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
               }
             }
           },
@@ -655,13 +1444,13 @@
             "type": "string",
             "nullable": true,
             "description": "Country name in native language",
-            "example": "\u092d\u093e\u0930\u0924"
+            "example": "भारत"
           },
           "emoji": {
             "type": "string",
             "nullable": true,
             "description": "Flag emoji",
-            "example": "\ud83c\uddee\ud83c\uddf3"
+            "example": "🇮🇳"
           },
           "latitude": {
             "type": "string",
@@ -719,7 +1508,7 @@
             "type": "string",
             "nullable": true,
             "description": "Currency symbol. **Coordinates tier and above.**",
-            "example": "\u20b9"
+            "example": "₹"
           },
           "tld": {
             "type": "string",
@@ -1034,6 +1823,278 @@
           }
         },
         "required": ["id", "name", "region_id"]
+      },
+      "TimezoneInfo": {
+        "type": "object",
+        "description": "IANA timezone with current UTC offset and DST status. Standard and DST offsets are sampled from Jan 1 and Jul 1 of the current year.",
+        "properties": {
+          "iana": {
+            "type": "string",
+            "description": "Canonical IANA timezone identifier",
+            "example": "Asia/Kolkata"
+          },
+          "abbreviation": {
+            "type": "string",
+            "description": "Locale-aware short code (display only — not unique across timezones)",
+            "example": "IST"
+          },
+          "offset_utc": {
+            "type": "string",
+            "description": "Standard UTC offset in ±HH:MM format",
+            "example": "+05:30"
+          },
+          "dst_offset_utc": {
+            "type": "string",
+            "description": "DST UTC offset in ±HH:MM format; equals `offset_utc` for zones without DST",
+            "example": "+05:30"
+          },
+          "is_dst_now": {
+            "type": "boolean",
+            "description": "Whether DST is currently active",
+            "example": false
+          }
+        },
+        "required": ["iana", "abbreviation", "offset_utc", "dst_offset_utc", "is_dst_now"]
+      },
+      "CurrencyInfo": {
+        "type": "object",
+        "description": "Currency data for a country. `currency.name` and `currency.symbol` may be null for a small number of entries.",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code",
+            "example": "IN"
+          },
+          "currency": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "ISO 4217 currency code — always present",
+                "example": "INR"
+              },
+              "name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Full currency name",
+                "example": "Indian rupee"
+              },
+              "symbol": {
+                "type": "string",
+                "nullable": true,
+                "description": "Unicode currency symbol; fall back to `code` if null",
+                "example": "₹"
+              }
+            },
+            "required": ["code"]
+          }
+        },
+        "required": ["country", "currency"]
+      },
+      "DialCode": {
+        "type": "object",
+        "description": "International dial code entry for a country. Follows ITU-T E.164 standards.",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code",
+            "example": "IN"
+          },
+          "dial_code": {
+            "type": "string",
+            "description": "International dial code with `+` prefix",
+            "example": "+91"
+          },
+          "iso2": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 code",
+            "example": "IN"
+          },
+          "iso3": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-3 code",
+            "example": "IND"
+          },
+          "area_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Fixed area code for NANP territories (e.g., `246` for Barbados). Present only when applicable.",
+            "example": null
+          }
+        },
+        "required": ["country", "dial_code", "iso2", "iso3"]
+      },
+      "PhoneParsed": {
+        "type": "object",
+        "description": "Result of parsing an E.164 phone number. Contains PII (the echoed phone number) — the endpoint returns `Cache-Control: no-store`.",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 code of the originating country",
+            "example": "US"
+          },
+          "dial_code": {
+            "type": "string",
+            "description": "Country dial code with `+` prefix",
+            "example": "+1"
+          },
+          "iso2": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 code",
+            "example": "US"
+          },
+          "iso3": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-3 code",
+            "example": "USA"
+          },
+          "national_number": {
+            "type": "string",
+            "description": "Digits after removing the country code",
+            "example": "4155552671"
+          },
+          "e164": {
+            "type": "string",
+            "description": "Normalized input echoed back",
+            "example": "+14155552671"
+          },
+          "area_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Area code for NANP territories only",
+            "example": null
+          }
+        },
+        "required": ["country", "dial_code", "iso2", "iso3", "national_number", "e164"]
+      },
+      "IsoCountry": {
+        "type": "object",
+        "description": "Country record returned by the ISO lookup endpoint.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Internal CSC country ID",
+            "example": 233
+          },
+          "name": {
+            "type": "string",
+            "description": "Official English country name",
+            "example": "United States"
+          },
+          "iso2": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 code",
+            "example": "US"
+          },
+          "iso3": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-3 code",
+            "example": "USA"
+          },
+          "numeric_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Zero-padded 3-digit ISO 3166-1 numeric code",
+            "example": "840"
+          }
+        },
+        "required": ["id", "name", "iso2", "iso3"]
+      },
+      "IsoState": {
+        "type": "object",
+        "description": "State record returned by the ISO 3166-2 lookup endpoint.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Internal CSC state ID",
+            "example": 1416
+          },
+          "name": {
+            "type": "string",
+            "description": "State name in English",
+            "example": "California"
+          },
+          "iso2": {
+            "type": "string",
+            "nullable": true,
+            "description": "Legacy state ISO2 code",
+            "example": "CA"
+          },
+          "iso3166_2": {
+            "type": "string",
+            "nullable": true,
+            "description": "ISO 3166-2 subdivision code",
+            "example": "US-CA"
+          },
+          "country_id": {
+            "type": "integer",
+            "description": "Parent country ID",
+            "example": 233
+          },
+          "country_code": {
+            "type": "string",
+            "description": "Parent country ISO2 code",
+            "example": "US"
+          }
+        },
+        "required": ["id", "name", "country_id", "country_code"]
+      },
+      "IsoConvert": {
+        "type": "object",
+        "description": "Result of an ISO 3166-1 code conversion.",
+        "properties": {
+          "from": {
+            "type": "string",
+            "enum": ["iso2", "iso3", "numeric"],
+            "description": "Source format",
+            "example": "iso2"
+          },
+          "to": {
+            "type": "string",
+            "enum": ["iso2", "iso3", "numeric"],
+            "description": "Target format",
+            "example": "iso3"
+          },
+          "value": {
+            "type": "string",
+            "description": "The input code",
+            "example": "US"
+          },
+          "result": {
+            "type": "string",
+            "description": "The converted code. Numeric results are zero-padded to 3 digits.",
+            "example": "USA"
+          }
+        },
+        "required": ["from", "to", "value", "result"]
+      },
+      "FuzzyResult": {
+        "type": "object",
+        "description": "A single result from a fuzzy search, ranked by trigram similarity.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Entity ID (city, state, or country)",
+            "example": 57606
+          },
+          "name": {
+            "type": "string",
+            "description": "English name of the matched entity",
+            "example": "Bangalore"
+          },
+          "match_score": {
+            "type": "number",
+            "description": "Trigram similarity score (0–1, rounded to 2 decimals). Higher is a closer match.",
+            "example": 0.85
+          },
+          "matched_alias": {
+            "type": "string",
+            "nullable": true,
+            "description": "Native-script name if it scored higher than the English name; `null` otherwise",
+            "example": null
+          }
+        },
+        "required": ["id", "name", "match_score"]
       },
       "Error": {
         "type": "object",
