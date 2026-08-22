@@ -1,0 +1,114 @@
+name: CI
+
+# Validates the OpenAPI description that is served to the public playground.
+# config.json is published straight to GitHub Pages by the Pages build, so a
+# malformed or structurally invalid spec reaches playground.countrystatecity.in
+# with no gate in front of it. This is that gate.
+#
+# The workflow is deliberately named "CI" because ww-ci-status.yml keys its
+# `workflow_run` trigger off `workflows: ["CI"]`.
+
+on:
+  push:
+    branches: ["main", "ww/**"]
+  pull_request:
+
+# Read-only: this job never writes to the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  openapi:
+    name: Validate OpenAPI spec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check config.json parses as JSON
+        run: |
+          set -euo pipefail
+          python3 -c 'import json,sys; json.load(open("config.json")); print("config.json is valid JSON")'
+
+      - name: Lint OpenAPI description
+        run: |
+          set -euo pipefail
+          npx --yes @redocly/cli@2.47.0 lint config.json
+
+      - name: Check every internal $ref resolves
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, sys
+
+          doc = json.load(open("config.json"))
+          broken = []
+
+          def walk(node, path="#"):
+              if isinstance(node, dict):
+                  ref = node.get("$ref")
+                  if isinstance(ref, str):
+                      if not ref.startswith("#/"):
+                          broken.append(f"{path}: external $ref {ref!r}")
+                      else:
+                          cur = doc
+                          for part in ref[2:].split("/"):
+                              part = part.replace("~1", "/").replace("~0", "~")
+                              if isinstance(cur, dict) and part in cur:
+                                  cur = cur[part]
+                              else:
+                                  broken.append(f"{path}: unresolved $ref {ref!r}")
+                                  break
+                  for key, value in node.items():
+                      walk(value, f"{path}/{key}")
+              elif isinstance(node, list):
+                  for index, value in enumerate(node):
+                      walk(value, f"{path}/{index}")
+
+          walk(doc)
+          if broken:
+              print("Broken $ref(s) found:")
+              for item in broken:
+                  print(f"  - {item}")
+              sys.exit(1)
+          print("All internal $refs resolve")
+          PY
+
+      - name: Check operationIds are unique
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import collections, json, sys
+
+          doc = json.load(open("config.json"))
+          seen = collections.Counter()
+          missing = []
+
+          for path, operations in doc.get("paths", {}).items():
+              for method, operation in operations.items():
+                  if method not in ("get", "post", "put", "patch", "delete"):
+                      continue
+                  operation_id = operation.get("operationId")
+                  if operation_id:
+                      seen[operation_id] += 1
+                  else:
+                      missing.append(f"{method.upper()} {path}")
+
+          duplicates = [f"{k} (x{v})" for k, v in seen.items() if v > 1]
+          if duplicates or missing:
+              for item in duplicates:
+                  print(f"Duplicate operationId: {item}")
+              for item in missing:
+                  print(f"Missing operationId: {item}")
+              sys.exit(1)
+          print(f"{len(seen)} unique operationIds")
+          PY
