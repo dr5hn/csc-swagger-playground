@@ -1419,14 +1419,14 @@
           {
             "name": "country",
             "in": "query",
-            "description": "ISO 3166-1 alpha-2 country code to narrow the search (e.g., `IN`). Invalid when `type=country`.",
+            "description": "ISO 3166-1 alpha-2 country code to narrow the search (e.g., `IN`). Invalid when `type=country` — supplying both returns a `400`.",
             "required": false,
-            "schema": { "type": "string", "example": "IN" }
+            "schema": { "type": "string", "minLength": 2, "maxLength": 2, "pattern": "^[A-Za-z]{2}$", "example": "IN" }
           },
           {
             "name": "state",
             "in": "query",
-            "description": "State/province ISO code to narrow the search further (e.g., `MH`). State codes are not globally unique, so this requires `country` to also be set.",
+            "description": "State/province ISO code to narrow the search further (e.g., `MH`). State codes are not globally unique, so this requires `country` to also be set. Only applied when `type=city`; accepted but ignored for `type=state`.",
             "required": false,
             "schema": { "type": "string", "minLength": 1, "maxLength": 20, "example": "MH" }
           },
@@ -1461,7 +1461,7 @@
             }
           },
           "400": {
-            "description": "Missing or invalid `q` parameter, or `state` supplied without `country`",
+            "description": "Missing or invalid `q` parameter, `state` supplied without `country`, or `country` supplied together with `type=country`",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" }
@@ -2188,7 +2188,7 @@
           },
           "label": {
             "type": "string",
-            "description": "Ready-to-display label. Country: name only. State: `\"Name, Country\"`. City: `\"Name, State, Country\"`.",
+            "description": "Ready-to-display label. Country: name only. State: `\"Name, Country\"`. City: `\"Name, State, Country\"`, falling back to `\"Name, Country\"` when the city has no parent state.",
             "example": "Mumbai, Maharashtra, India"
           },
           "id": {
@@ -2205,13 +2205,13 @@
           "iso2": {
             "type": "string",
             "nullable": true,
-            "description": "ISO 3166-1 alpha-2 code (`type=country`) or state ISO code (`type=state`); `null` for `type=city`",
+            "description": "ISO 3166-1 alpha-2 code (`type=country`) or state ISO code (`type=state`). Not present on `type=city` results.",
             "example": "IN"
           },
           "iso3": {
             "type": "string",
             "nullable": true,
-            "description": "ISO 3166-1 alpha-3 code. Only present for `type=country`.",
+            "description": "ISO 3166-1 alpha-3 code. Only present for `type=country`; not present otherwise.",
             "example": "IND"
           },
           "state_code": {
