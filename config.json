@@ -1474,6 +1474,114 @@
         },
         "security": [{ "ApiKeyAuth": [] }]
       }
+    },
+    "/search/nearby": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Nearby search",
+        "description": "Find the nearest cities, states, or countries to a coordinate pair. Results are sorted by `distance_km`, nearest first.\n\nThis is **not** street-address search, map-boundary containment, road distance, or travel time. It measures straight-line distance to known place points.\n\nExample: `?lat=19.076&lng=72.878&type=city&kind=settlement` finds settlements near Mumbai.\n\n**Availability:** Professional and Business plans for production use. Other plans can try it in the public playground. [Compare plans](https://countrystatecity.in/pricing?source=api_playground&campaign=nearby_search).",
+        "operationId": "nearbySearch",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "description": "Latitude of the search origin",
+            "required": true,
+            "schema": { "type": "number", "minimum": -90, "maximum": 90, "example": 19.076 }
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "description": "Longitude of the search origin",
+            "required": true,
+            "schema": { "type": "number", "minimum": -180, "maximum": 180, "example": 72.878 }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Entity type to search",
+            "required": false,
+            "schema": { "type": "string", "enum": ["city", "state", "country"], "default": "city", "example": "city" }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "description": "City classification filter. Valid only when `type=city`.",
+            "required": false,
+            "schema": { "type": "string", "enum": ["settlement", "administrative", "section", "unknown"], "example": "settlement" }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "description": "ISO 3166-1 alpha-2 country code. Invalid when `type=country`.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 2, "pattern": "^[A-Za-z]{2}$", "example": "IN" }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "State or province code for a city search. Requires `country` and is valid only when `type=city`.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 1, "maxLength": 20, "example": "MH" }
+          },
+          {
+            "name": "min_population",
+            "in": "query",
+            "description": "Minimum population a result must have",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "minimum": 0, "maximum": 9007199254740991, "example": 100000 }
+          },
+          {
+            "name": "radius",
+            "in": "query",
+            "description": "Search radius in kilometers (1–500)",
+            "required": false,
+            "schema": { "type": "number", "minimum": 1, "maximum": 500, "default": 25, "example": 25 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of results (1–100)",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20, "example": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching results sorted from nearest to farthest",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/NearbyResult" }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid query parameter, or a country, state, or kind filter used with an invalid entity type",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
     }
   },
   "components": {
@@ -2239,6 +2347,76 @@
           }
         },
         "required": ["type", "label", "id", "name", "match_score", "matched_field"]
+      },
+      "NearbyResult": {
+        "type": "object",
+        "description": "One nearby result. Normal fields depend on the selected entity type and API plan.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "description": "Raw source type for a state or city. This is not the country/state/city query type. Available on the coordinates tier and above.",
+            "example": "city"
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["settlement", "administrative", "section", "unknown"],
+            "description": "Derived city classification. Present on city results for every plan.",
+            "example": "settlement"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Entity ID",
+            "example": 57606
+          },
+          "name": {
+            "type": "string",
+            "description": "English place name",
+            "example": "Mumbai"
+          },
+          "iso2": {
+            "type": "string",
+            "nullable": true,
+            "description": "Country ISO2 code for countries or state ISO code for states. Not present on city results.",
+            "example": "IN"
+          },
+          "iso3": {
+            "type": "string",
+            "nullable": true,
+            "description": "Country ISO3 code. Present only on country results.",
+            "example": "IND"
+          },
+          "state_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Parent state code for city results. Available on the coordinates tier and above.",
+            "example": "MH"
+          },
+          "country_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Parent country code. Always present on state results; available on city results on the coordinates tier and above.",
+            "example": "IN"
+          },
+          "country_name": {
+            "type": "string",
+            "description": "Parent country name. Present on state and city results for every plan.",
+            "example": "India"
+          },
+          "state_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Parent state name. Present on city results for every plan; null when there is no parent state.",
+            "example": "Maharashtra"
+          },
+          "distance_km": {
+            "type": "number",
+            "description": "Straight-line distance from the search origin in kilometers",
+            "example": 3.42
+          }
+        },
+        "required": ["id", "name", "distance_km"]
       },
       "Error": {
         "type": "object",
