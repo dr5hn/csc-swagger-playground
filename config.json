@@ -1426,7 +1426,7 @@
           {
             "name": "state",
             "in": "query",
-            "description": "State/province ISO code to narrow the search further (e.g., `MH`). State codes are not globally unique, so this requires `country` to also be set. Only applied when `type=city`; accepted but ignored for `type=state`.",
+            "description": "State/province ISO code to narrow a city search further (e.g., `MH`). State codes are not globally unique, so this requires `country` to also be set and is valid only when `type=city`.",
             "required": false,
             "schema": { "type": "string", "minLength": 1, "maxLength": 20, "example": "MH" }
           },
@@ -1461,7 +1461,7 @@
             }
           },
           "400": {
-            "description": "Missing or invalid `q` parameter, `state` supplied without `country`, or `country` supplied together with `type=country`",
+            "description": "Missing or invalid query parameter, `state` used without `country` or with a non-city type, or `country` supplied together with `type=country`",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" }
