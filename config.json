@@ -86,6 +86,20 @@
             "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. E.g. `name:asc,population:desc`. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name:asc" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -136,6 +150,20 @@
             "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name,iso2,capital" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to the result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -198,6 +226,20 @@
             "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name:asc" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -256,6 +298,20 @@
             "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name,iso2,country_code" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to the result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -325,6 +381,20 @@
             "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name:asc" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -390,6 +460,20 @@
             "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name:asc" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -449,6 +533,20 @@
             "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name:asc" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -507,6 +605,20 @@
             "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name:asc" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -558,6 +670,20 @@
             "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name,wikiDataId" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to the result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -621,6 +747,20 @@
             "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name:asc" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -672,6 +812,20 @@
             "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name,region_id" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to the result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -735,6 +889,20 @@
             "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "example": "name:asc" }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Professional and Business plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "pt-BR" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Professional and Business plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -1319,7 +1487,7 @@
       "get": {
         "tags": ["Search"],
         "summary": "Fuzzy search",
-        "description": "Typo-tolerant search for cities, states, or countries using PostgreSQL trigram similarity. Matches against both English and native-script names. Results are ranked by `match_score` descending.\n\nExample: `?q=Banglore&type=city&country=IN` resolves to Bangalore.\n\n**Availability:** Professional+ plan required.",
+        "description": "Typo-tolerant search for cities, states, or countries. It searches English and native names, plus translations for queries of at least 3 characters. Use `locale` to add a localized display name to each result. Results are ranked by `match_score` descending.\n\nExample: `?q=ムンバイ&type=city&locale=ja` finds Mumbai by its Japanese translation while keeping the English `name` and stable `id`.\n\n**Availability:** Professional and Business plans. [Compare plans](https://countrystatecity.in/pricing?source=api_playground&campaign=localized_search).",
         "operationId": "fuzzySearch",
         "parameters": [
           {
@@ -1327,7 +1495,7 @@
             "in": "query",
             "description": "Search query — 2 to 100 characters. Case-insensitive.",
             "required": true,
-            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "Banglore" }
+            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "Mumbay" }
           },
           {
             "name": "type",
@@ -1356,6 +1524,20 @@
             "description": "Minimum trigram similarity score (0.1–1.0). Lower values yield looser matches.",
             "required": false,
             "schema": { "type": "number", "minimum": 0.1, "maximum": 1.0, "default": 0.3, "example": 0.3 }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "Adds `localized_name` and `matched_locale` using exact locale → base language → native name → English name fallback. The English `name` and `id` stay unchanged. **Professional and Business plans only.**",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "ja" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full translation JSON string. **Professional and Business plans only.**",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -1381,7 +1563,7 @@
             }
           },
           "400": {
-            "description": "Missing or invalid `q` parameter",
+            "description": "Missing or invalid query parameter",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" }
@@ -1399,7 +1581,7 @@
       "get": {
         "tags": ["Search"],
         "summary": "Location autocomplete",
-        "description": "As-you-type search for cities, states, or countries. Matches against both English and native-script names, ranked exact match first, then starts-with, then fuzzy. Each result includes a ready-to-display `label`.\n\nExample: `?q=Mumbay&type=city&country=IN` resolves to Mumbai.\n\n**Availability:** Professional and Business plans for production use; other plans can try it in the public playground.",
+        "description": "As-you-type search for cities, states, or countries. It searches English and native names, plus translations for queries of at least 3 characters. Results rank exact matches first, then starts-with, then fuzzy matches. Each result includes a ready-to-display `label`; when `locale` is set, that label starts with the localized name.\n\nExample: `?q=ムンバイ&type=city&locale=ja` finds Mumbai and returns a Japanese label while preserving the English `name` and stable `id`.\n\n**Availability:** Professional and Business plans for production use; other plans can try basic autocomplete in the public playground. [Compare plans](https://countrystatecity.in/pricing?source=api_playground&campaign=localized_autocomplete).",
         "operationId": "autocompleteSearch",
         "parameters": [
           {
@@ -1436,6 +1618,20 @@
             "description": "Maximum number of results to return (1–50)",
             "required": false,
             "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10, "example": 10 }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "Adds `localized_name` and `matched_locale`, and starts `label` with the localized name. The English `name` and `id` stay unchanged. **Professional and Business plans only.**",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "ja" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full translation JSON string. **Professional and Business plans only.**",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -1544,6 +1740,20 @@
             "description": "Maximum number of results (1–100)",
             "required": false,
             "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20, "example": 20 }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "Adds `localized_name` and `matched_locale` using exact locale → base language → native name → English name fallback. The English `name`, stable `id`, and distance stay unchanged. **Professional and Business plans only.**",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 7, "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$", "example": "ja" }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full translation JSON string. **Professional and Business plans only.**",
+            "required": false,
+            "schema": { "type": "boolean", "default": false, "example": true }
           }
         ],
         "responses": {
@@ -1746,13 +1956,25 @@
           "translations": {
             "type": "string",
             "nullable": true,
-            "description": "JSON string of translations in 18+ languages (kr, pt-BR, pt, nl, hr, fa, de, es, fr, ja, it, cn, tr). **Full access level only.**"
+            "description": "JSON string keyed by language code. **Professional and Business plans only.** Returned when `include_translations=true` or when `fields=translations` explicitly requests it."
           },
           "wikiDataId": {
             "type": "string",
             "nullable": true,
             "description": "Wikidata item identifier. **Full access level only.**",
             "example": "Q668"
+          },
+          "localized_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name resolved via the `locale` query param's fallback chain (exact locale → base language → native name → English name). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "Índia"
+          },
+          "matched_locale": {
+            "type": "string",
+            "nullable": true,
+            "description": "Which fallback tier satisfied the `locale` request: the exact locale (e.g. `pt-BR`), its base language (e.g. `pt`), `native`, or `en` (English fallback). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "pt"
           }
         },
         "required": ["id", "name", "iso2", "iso3"]
@@ -1847,13 +2069,25 @@
           "translations": {
             "type": "string",
             "nullable": true,
-            "description": "JSON string of translations. **Full access level only.**"
+            "description": "JSON string keyed by language code. **Professional and Business plans only.** Returned when `include_translations=true` or when `fields=translations` explicitly requests it."
           },
           "wikiDataId": {
             "type": "string",
             "nullable": true,
             "description": "Wikidata item identifier. **Full access level only.**",
             "example": "Q1191"
+          },
+          "localized_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name resolved via the `locale` query param's fallback chain (exact locale → base language → native name → English name). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "Maharashtra"
+          },
+          "matched_locale": {
+            "type": "string",
+            "nullable": true,
+            "description": "Which fallback tier satisfied the `locale` request: the exact locale (e.g. `pt-BR`), its base language (e.g. `pt`), `native`, or `en` (English fallback). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "en"
           }
         },
         "required": ["id", "name", "country_id", "country_code"]
@@ -1939,13 +2173,25 @@
           "translations": {
             "type": "string",
             "nullable": true,
-            "description": "JSON string of translations. **Full access level only.**"
+            "description": "JSON string keyed by language code. **Professional and Business plans only.** Returned when `include_translations=true` or when `fields=translations` explicitly requests it."
           },
           "wikiDataId": {
             "type": "string",
             "nullable": true,
             "description": "Wikidata item identifier. **Full access level only.**",
             "example": "Q1156"
+          },
+          "localized_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name resolved via the `locale` query param's fallback chain (exact locale → base language → native name → English name). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "Mumbai"
+          },
+          "matched_locale": {
+            "type": "string",
+            "nullable": true,
+            "description": "Which fallback tier satisfied the `locale` request: the exact locale (e.g. `pt-BR`), its base language (e.g. `pt`), `native`, or `en` (English fallback). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "en"
           }
         },
         "required": ["id", "name"]
@@ -1968,7 +2214,19 @@
           "translations": {
             "type": "string",
             "nullable": true,
-            "description": "JSON string of translations. **Full access level only.**"
+            "description": "JSON string keyed by language code. **Professional and Business plans only.** Returned when `include_translations=true` or when `fields=translations` explicitly requests it."
+          },
+          "localized_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name resolved via the `locale` query param's fallback chain (exact locale → base language → native name → English name). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "Ásia"
+          },
+          "matched_locale": {
+            "type": "string",
+            "nullable": true,
+            "description": "Which fallback tier satisfied the `locale` request: the exact locale (e.g. `pt-BR`), its base language (e.g. `pt`), `native`, or `en` (English fallback). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "pt"
           },
           "wikiDataId": {
             "type": "string",
@@ -2002,7 +2260,19 @@
           "translations": {
             "type": "string",
             "nullable": true,
-            "description": "JSON string of translations. **Full access level only.**"
+            "description": "JSON string keyed by language code. **Professional and Business plans only.** Returned when `include_translations=true` or when `fields=translations` explicitly requests it."
+          },
+          "localized_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name resolved via the `locale` query param's fallback chain (exact locale → base language → native name → English name). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "Ásia Meridional"
+          },
+          "matched_locale": {
+            "type": "string",
+            "nullable": true,
+            "description": "Which fallback tier satisfied the `locale` request: the exact locale (e.g. `pt-BR`), its base language (e.g. `pt`), `native`, or `en` (English fallback). Only present when `locale` was supplied. **Professional and Business plans only** — silently omitted on lower tiers.",
+            "example": "pt"
           },
           "wikiDataId": {
             "type": "string",
@@ -2258,7 +2528,7 @@
       },
       "FuzzyResult": {
         "type": "object",
-        "description": "A single result from a fuzzy search, ranked by trigram similarity.",
+        "description": "A single result from a fuzzy search, ranked by trigram similarity. Field set depends on the `type` search param (country/state/city) — the fields below note which result type(s) each applies to. Tier gating mirrors the same field on the `Country`/`State`/`City` schemas.",
         "properties": {
           "id": {
             "type": "integer",
@@ -2268,7 +2538,219 @@
           "name": {
             "type": "string",
             "description": "English name of the matched entity",
-            "example": "Bangalore"
+            "example": "Mumbai"
+          },
+          "iso2": {
+            "type": "string",
+            "nullable": true,
+            "description": "ISO 3166-1 alpha-2 code (country results) or state ISO code (state results); not present on city results."
+          },
+          "iso3": {
+            "type": "string",
+            "nullable": true,
+            "description": "ISO 3166-1 alpha-3 code. Country results only."
+          },
+          "numeric_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "ISO 3166-1 numeric code. Country results only. **Coordinates tier and above.**"
+          },
+          "phonecode": {
+            "type": "string",
+            "nullable": true,
+            "description": "International dialling code. Country results only."
+          },
+          "capital": {
+            "type": "string",
+            "nullable": true,
+            "description": "Capital city name. Country results only."
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency code. Country results only."
+          },
+          "currency_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Full currency name. Country results only. **Coordinates tier and above.**"
+          },
+          "currency_symbol": {
+            "type": "string",
+            "nullable": true,
+            "description": "Currency symbol. Country results only. **Coordinates tier and above.**"
+          },
+          "tld": {
+            "type": "string",
+            "nullable": true,
+            "description": "Top-level domain. Country results only. **Coordinates tier and above.**"
+          },
+          "nationality": {
+            "type": "string",
+            "nullable": true,
+            "description": "Nationality/demonym. Country results only. **Coordinates tier and above.**"
+          },
+          "region": {
+            "type": "string",
+            "nullable": true,
+            "description": "Geographic region. Country results only."
+          },
+          "region_id": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Region identifier. Country results only."
+          },
+          "subregion": {
+            "type": "string",
+            "nullable": true,
+            "description": "Geographic subregion. Country results only."
+          },
+          "subregion_id": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Subregion identifier. Country results only."
+          },
+          "timezones": {
+            "type": "string",
+            "nullable": true,
+            "description": "JSON string of timezone objects. Country results only."
+          },
+          "emoji": {
+            "type": "string",
+            "nullable": true,
+            "description": "Flag emoji. Country results only."
+          },
+          "emojiU": {
+            "type": "string",
+            "nullable": true,
+            "description": "Flag emoji Unicode points. Country results only. **Coordinates tier and above.**"
+          },
+          "gdp": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "Gross domestic product (USD). Country results only. **Coordinates tier and above.**"
+          },
+          "area_sq_km": {
+            "type": "string",
+            "nullable": true,
+            "description": "Area in square kilometres. Country results only. **Coordinates tier and above.**"
+          },
+          "postal_code_format": {
+            "type": "string",
+            "nullable": true,
+            "description": "Postal code format pattern. Country results only. **Coordinates tier and above.**"
+          },
+          "postal_code_regex": {
+            "type": "string",
+            "nullable": true,
+            "description": "Postal code validation regex. Country results only. **Coordinates tier and above.**"
+          },
+          "country_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "Parent country ID. State/city results only. Ungated on state results; **Coordinates tier and above** on city results."
+          },
+          "country_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Parent country ISO2 code. State/city results only. Ungated on state results; **Coordinates tier and above** on city results."
+          },
+          "country_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Parent country name. State/city results only. Always present regardless of plan tier."
+          },
+          "state_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "Parent state ID. City results only. **Coordinates tier and above.**"
+          },
+          "state_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Parent state ISO2 code. City results only. **Coordinates tier and above.**"
+          },
+          "state_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Parent state name. City results only. Always present regardless of plan tier."
+          },
+          "fips_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "FIPS code. State results only. **Coordinates tier and above.**"
+          },
+          "iso3166_2": {
+            "type": "string",
+            "nullable": true,
+            "description": "ISO 3166-2 subdivision code. State results only. **Coordinates tier and above.**"
+          },
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "description": "Administrative type (state results) or settlement type (city results). **Coordinates tier and above.**"
+          },
+          "level": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Administrative level. State/city results only. **Coordinates tier and above.**"
+          },
+          "parent_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "Parent subdivision ID (state results) or parent city ID (city results). **Coordinates tier and above.**"
+          },
+          "native": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name in native language. Ungated on country results; **Coordinates tier and above** on state/city results."
+          },
+          "population": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "Population count. **Coordinates tier and above.**"
+          },
+          "latitude": {
+            "type": "string",
+            "nullable": true,
+            "description": "Latitude coordinate. Ungated on country/state results; **Coordinates tier and above** on city results."
+          },
+          "longitude": {
+            "type": "string",
+            "nullable": true,
+            "description": "Longitude coordinate. Ungated on country/state results; **Coordinates tier and above** on city results."
+          },
+          "timezone": {
+            "type": "string",
+            "nullable": true,
+            "description": "IANA timezone identifier. State/city results only. Ungated on state results; **Coordinates tier and above** on city results."
+          },
+          "translations": {
+            "type": "string",
+            "nullable": true,
+            "description": "JSON string of translations. **Professional and Business plans only, and only when `include_translations=true` is passed.**"
+          },
+          "wikiDataId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Wikidata item identifier. **Full access level only.**"
+          },
+          "localized_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Localized display name selected by `locale`. The English `name` remains unchanged. **Professional and Business plans only.**",
+            "example": "ムンバイ"
+          },
+          "matched_locale": {
+            "type": "string",
+            "nullable": true,
+            "description": "Translation or fallback used for `localized_name`: the exact locale, base language, `native`, or `en`. **Professional and Business plans only.**",
+            "example": "ja"
           },
           "match_score": {
             "type": "number",
@@ -2296,8 +2778,8 @@
           },
           "label": {
             "type": "string",
-            "description": "Ready-to-display label. Country: name only. State: `\"Name, Country\"`. City: `\"Name, State, Country\"`, falling back to `\"Name, Country\"` when the city has no parent state.",
-            "example": "Mumbai, Maharashtra, India"
+            "description": "Ready-to-display label. When `locale` is supplied on a Professional or Business plan, the first place name is localized. Parent state and country names remain English.",
+            "example": "ムンバイ, Maharashtra, India"
           },
           "id": {
             "type": "integer",
@@ -2309,6 +2791,23 @@
             "type": "string",
             "description": "English name of the matched entity",
             "example": "Mumbai"
+          },
+          "translations": {
+            "type": "string",
+            "nullable": true,
+            "description": "JSON string of translations. **Professional and Business plans only, and only when `include_translations=true` is passed.**"
+          },
+          "localized_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Localized display name selected by `locale`. The English `name` remains unchanged. **Professional and Business plans only.**",
+            "example": "ムンバイ"
+          },
+          "matched_locale": {
+            "type": "string",
+            "nullable": true,
+            "description": "Translation or fallback used for `localized_name`: the exact locale, base language, `native`, or `en`. **Professional and Business plans only.**",
+            "example": "ja"
           },
           "iso2": {
             "type": "string",
@@ -2341,9 +2840,9 @@
           },
           "matched_field": {
             "type": "string",
-            "enum": ["name", "native"],
+            "enum": ["name", "native", "translation"],
             "description": "Which field the match was found against.",
-            "example": "name"
+            "example": "translation"
           }
         },
         "required": ["type", "label", "id", "name", "match_score", "matched_field"]
@@ -2374,6 +2873,23 @@
             "type": "string",
             "description": "English place name",
             "example": "Mumbai"
+          },
+          "translations": {
+            "type": "string",
+            "nullable": true,
+            "description": "JSON string of translations. **Professional and Business plans only, and only when `include_translations=true` is passed.**"
+          },
+          "localized_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Localized display name selected by `locale`. The English `name` remains unchanged. **Professional and Business plans only.**",
+            "example": "ムンバイ"
+          },
+          "matched_locale": {
+            "type": "string",
+            "nullable": true,
+            "description": "Translation or fallback used for `localized_name`: the exact locale, base language, `native`, or `en`. **Professional and Business plans only.**",
+            "example": "ja"
           },
           "iso2": {
             "type": "string",
