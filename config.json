@@ -56,6 +56,10 @@
     {
       "name": "Search",
       "description": "Typo-tolerant fuzzy search across cities, states, and countries"
+    },
+    {
+      "name": "Changes",
+      "description": "Data change feed — track additions, removals, and updates to place records over time. **Business plan only.**"
     }
   ],
   "paths": {
@@ -1792,6 +1796,116 @@
         },
         "security": [{ "ApiKeyAuth": [] }]
       }
+    },
+    "/changes": {
+      "get": {
+        "tags": ["Changes"],
+        "summary": "List data changes",
+        "description": "Returns additions, removals, and updates to country, state, and city records, oldest first. Changes are retained for 90 days. Use this feed to keep a local copy in sync instead of downloading the full dataset again.\n\nPagination is stable: the first request fixes the result set, and every `next_page_token` continues through that same snapshot. Changes published after page one are not added to later pages; start a new request to receive them. The token also carries the original filters, is valid for 24 hours, and must be treated as opaque.\n\nFields inside `old_values` and `new_values` follow the caller's data access level.\n\n**Availability:** Business plan only. [Compare plans](https://countrystatecity.in/pricing?source=api_playground&campaign=data_change_feed).",
+        "operationId": "listChanges",
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "Return changes at or after this ISO 8601 timestamp. A date older than the earliest retained change returns `400` with `details.earliestAvailableDate`.",
+            "required": false,
+            "schema": { "type": "string", "format": "date-time", "example": "2026-08-01T00:00:00Z" }
+          },
+          {
+            "name": "place_type",
+            "in": "query",
+            "description": "Return changes for one place type",
+            "required": false,
+            "schema": { "type": "string", "enum": ["country", "state", "city"], "example": "city" }
+          },
+          {
+            "name": "country_code",
+            "in": "query",
+            "description": "Return changes for a country and its states and cities. Uses an ISO 3166-1 alpha-2 code.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 2, "pattern": "^[A-Za-z]{2}$", "example": "IN" }
+          },
+          {
+            "name": "change_type",
+            "in": "query",
+            "description": "Return one kind of change",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["added", "removed", "renamed", "place_group_changed", "parent_changed", "coordinates_changed", "other_fields_changed"],
+              "example": "renamed"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum records per page (1–100)",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50, "example": 50 }
+          },
+          {
+            "name": "next_page_token",
+            "in": "query",
+            "description": "Opaque cursor returned by the previous page. It expires after 24 hours. Omit the original filters, or resend all of them unchanged.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[A-Za-z0-9_-]+$" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page from the fixed change-feed snapshot. This endpoint is not cached and does not return `Cache-Control`, `ETag`, or `X-Cache`.",
+            "headers": {
+              "X-Request-ID": { "$ref": "#/components/headers/XRequestId" },
+              "X-CSC-Data-Version": { "$ref": "#/components/headers/XCSCDataVersion" },
+              "X-CSC-Data-Updated-At": { "$ref": "#/components/headers/XCSCDataUpdatedAt" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ChangeFeedResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameter or token, filters that disagree with the token, or a start date outside the retained window",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ChangeFeedError" },
+                "example": {
+                  "status": "error",
+                  "message": "start_date is older than the earliest available change. Changes are kept for 90 days.",
+                  "details": { "earliestAvailableDate": "2026-05-26T00:00:00.000Z" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": {
+            "description": "The API key's plan does not include the data change feed. Business is the standard required tier.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ChangeFeedFeatureError" },
+                "example": {
+                  "status": "error",
+                  "message": "This feature is not available on your current plan.",
+                  "details": {
+                    "feature": "dataChangeFeed",
+                    "currentTier": "professional",
+                    "requiredTier": "business",
+                    "upgradeUrl": "https://app.countrystatecity.in/pricing"
+                  }
+                }
+              }
+            }
+          },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
     }
   },
   "components": {
@@ -2934,6 +3048,105 @@
         },
         "required": ["id", "name", "distance_km"]
       },
+      "ChangeRecord": {
+        "type": "object",
+        "description": "One recorded change. Fields inside `old_values` and `new_values` are filtered to the caller's data access level.",
+        "properties": {
+          "change_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique ID for this change",
+            "example": "6b30c790-c46f-4a0f-b7f2-ea1a1a9d8362"
+          },
+          "data_version": {
+            "type": "string",
+            "description": "Dataset release that produced this change",
+            "example": "v3.2-export.7-2026.08.24"
+          },
+          "changed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the release was recorded",
+            "example": "2026-08-24T08:15:00.000Z"
+          },
+          "place_type": {
+            "type": "string",
+            "enum": ["country", "state", "city"],
+            "example": "city"
+          },
+          "place_id": {
+            "type": "string",
+            "description": "Stable ID of the changed place",
+            "example": "57606"
+          },
+          "change_type": {
+            "type": "string",
+            "enum": ["added", "removed", "renamed", "place_group_changed", "parent_changed", "coordinates_changed", "other_fields_changed"],
+            "example": "renamed"
+          },
+          "old_values": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "description": "Values before the change. `null` for an added place."
+          },
+          "new_values": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "description": "Values after the change. `null` for a removed place."
+          }
+        },
+        "required": ["change_id", "data_version", "changed_at", "place_type", "place_id", "change_type", "old_values", "new_values"]
+      },
+      "ChangeFeedResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ChangeRecord" }
+          },
+          "next_page_token": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 4096,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "description": "Opaque cursor for the next page, or `null` after the last page."
+          }
+        },
+        "required": ["results", "next_page_token"]
+      },
+      "ChangeFeedError": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["error"] },
+          "message": { "type": "string" },
+          "details": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Extra context when available, including `earliestAvailableDate` for an expired retention window."
+          }
+        },
+        "required": ["status", "message"]
+      },
+      "ChangeFeedFeatureError": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["error"] },
+          "message": { "type": "string" },
+          "details": {
+            "type": "object",
+            "properties": {
+              "feature": { "type": "string", "enum": ["dataChangeFeed"] },
+              "currentTier": { "type": "string" },
+              "requiredTier": { "type": "string", "nullable": true },
+              "upgradeUrl": { "type": "string", "format": "uri" }
+            },
+            "required": ["feature", "currentTier", "requiredTier", "upgradeUrl"]
+          }
+        },
+        "required": ["status", "message", "details"]
+      },
       "Error": {
         "type": "object",
         "properties": {
@@ -3043,6 +3256,18 @@
       }
     },
     "headers": {
+      "XRequestId": {
+        "description": "Unique ID for this request",
+        "schema": { "type": "string", "format": "uuid", "example": "8b4c01b8-60f1-4c29-a105-8dc65ca9925e" }
+      },
+      "XCSCDataVersion": {
+        "description": "Current dataset version. Present when version metadata is available.",
+        "schema": { "type": "string", "example": "v3.2-export.7-2026.08.24" }
+      },
+      "XCSCDataUpdatedAt": {
+        "description": "When the current dataset version was published. Present when version metadata is available.",
+        "schema": { "type": "string", "format": "date-time", "example": "2026-08-24T08:15:00.000Z" }
+      },
       "CacheControl": {
         "description": "Cache directive",
         "schema": { "type": "string", "example": "public, max-age=3600" }
