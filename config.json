@@ -1394,6 +1394,86 @@
         },
         "security": [{ "ApiKeyAuth": [] }]
       }
+    },
+    "/search/autocomplete": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Location autocomplete",
+        "description": "As-you-type search for cities, states, or countries. Matches against both English and native-script names, ranked exact match first, then starts-with, then fuzzy. Each result includes a ready-to-display `label`.\n\nExample: `?q=Mumbay&type=city&country=IN` resolves to Mumbai.\n\n**Availability:** Professional and Business plans for production use; other plans can try it in the public playground.",
+        "operationId": "autocompleteSearch",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query — 2 to 100 characters. Case-insensitive.",
+            "required": true,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "Mumbay" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Entity type to search",
+            "required": false,
+            "schema": { "type": "string", "enum": ["city", "state", "country"], "default": "city", "example": "city" }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "description": "ISO 3166-1 alpha-2 country code to narrow the search (e.g., `IN`). Invalid when `type=country` — supplying both returns a `400`.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 2, "maxLength": 2, "pattern": "^[A-Za-z]{2}$", "example": "IN" }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "State/province ISO code to narrow a city search further (e.g., `MH`). State codes are not globally unique, so this requires `country` to also be set and is valid only when `type=city`.",
+            "required": false,
+            "schema": { "type": "string", "minLength": 1, "maxLength": 20, "example": "MH" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of results to return (1–50)",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10, "example": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching results ranked by relevance",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/AutocompleteResult" }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid query parameter, `state` used without `country` or with a non-city type, or `country` supplied together with `type=country`",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [{ "ApiKeyAuth": [] }]
+      }
     }
   },
   "components": {
@@ -2095,6 +2175,70 @@
           }
         },
         "required": ["id", "name", "match_score"]
+      },
+      "AutocompleteResult": {
+        "type": "object",
+        "description": "A single result from a location autocomplete query, ranked by relevance (exact match, then starts-with, then fuzzy). Field set depends on `type`. Note: unlike most other city fields, `country_code` and `state_code` on city results are always returned regardless of plan tier, since the client needs them to disambiguate the `label`.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["country", "state", "city"],
+            "description": "Entity type of the matched result",
+            "example": "city"
+          },
+          "label": {
+            "type": "string",
+            "description": "Ready-to-display label. Country: name only. State: `\"Name, Country\"`. City: `\"Name, State, Country\"`, falling back to `\"Name, Country\"` when the city has no parent state.",
+            "example": "Mumbai, Maharashtra, India"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Entity ID (city, state, or country)",
+            "example": 57606
+          },
+          "name": {
+            "type": "string",
+            "description": "English name of the matched entity",
+            "example": "Mumbai"
+          },
+          "iso2": {
+            "type": "string",
+            "nullable": true,
+            "description": "ISO 3166-1 alpha-2 code (`type=country`) or state ISO code (`type=state`). Not present on `type=city` results.",
+            "example": "IN"
+          },
+          "iso3": {
+            "type": "string",
+            "nullable": true,
+            "description": "ISO 3166-1 alpha-3 code. Only present for `type=country`; not present otherwise.",
+            "example": "IND"
+          },
+          "state_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Parent state ISO code. Always present for `type=city`; `null` otherwise.",
+            "example": "MH"
+          },
+          "country_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Parent country ISO2 code. Always present for `type=city` and `type=state`; `null` for `type=country`.",
+            "example": "IN"
+          },
+          "match_score": {
+            "type": "number",
+            "description": "Relevance score (0–1, rounded to 2 decimals). Higher is a closer match.",
+            "example": 0.95
+          },
+          "matched_field": {
+            "type": "string",
+            "enum": ["name", "native"],
+            "description": "Which field the match was found against.",
+            "example": "name"
+          }
+        },
+        "required": ["type", "label", "id", "name", "match_score", "matched_field"]
       },
       "Error": {
         "type": "object",
