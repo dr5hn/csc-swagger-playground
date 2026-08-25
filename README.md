@@ -37,7 +37,7 @@ When updating, keep in sync with:
 
 ## Links
 
-- **Pricing:** [app.countrystatecity.in/pricing](https://app.countrystatecity.in/pricing)
+- **Pricing:** [countrystatecity.in/pricing](https://countrystatecity.in/pricing)
 - **API Dashboard:** [app.countrystatecity.in](https://app.countrystatecity.in)
 - **Main API:** [api.countrystatecity.in/v1](https://api.countrystatecity.in/v1)
 - **Database repo:** [github.com/dr5hn/countries-states-cities-database](https://github.com/dr5hn/countries-states-cities-database)
