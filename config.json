@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Country State City API",
-    "description": "Geographic data API providing countries, states, cities, timezones, currencies, and phone dial codes with tiered access levels.\n\n## Authentication\nAll endpoints require an API key passed via the `X-CSCAPI-KEY` header. Get your free key at [app.countrystatecity.in](https://app.countrystatecity.in).\n\n## Pricing & Limits\nThe fields returned, endpoints available, and request quotas depend on your plan. See current tiers and limits at:\n\n**[app.countrystatecity.in/pricing](https://app.countrystatecity.in/pricing)**\n\n## Data Access Levels\nEach plan includes a data access level that controls which fields are returned:\n\n- **Basic** — Core fields: id, name, iso2, iso3, phonecode, capital, currency, coordinates, region, timezones, emoji\n- **Coordinates** — Basic + extended metadata (population, tld, nationality, currency details, postal codes, etc.)\n- **Full** — All fields including translations (18+ languages) and wikiDataId\n\nFields restricted to higher tiers are marked in each schema below.\n\n## Feature Gating\nSome endpoints require a minimum tier. Restricted endpoints return `403` with an `upgradeUrl` when accessed on a lower plan. Check the [pricing page](https://app.countrystatecity.in/pricing) for current feature availability.\n\n## Rate Limiting\nRequests exceeding your daily or monthly quota receive a `429` response with your current limit, period, tier, and an upgrade URL.\n\n## Caching\nAll responses include `Cache-Control`, `ETag`, and `X-Cache` (HIT/MISS) headers. Use `If-None-Match` for conditional requests to receive `304 Not Modified`.\n\n## Usage Headers\nAll `/v1/*` responses include usage and plan headers:\n- `X-CSC-Plan` — your current tier\n- `X-CSC-Daily-Used` / `X-CSC-Daily-Limit` — today's usage vs limit\n- `X-CSC-Monthly-Used` / `X-CSC-Monthly-Limit` — this month's usage vs limit\n\nUse these to monitor consumption without a separate API call.",
+    "description": "Geographic data API providing countries, states, cities, timezones, currencies, and phone dial codes with tiered access levels.\n\n## Authentication\nAll endpoints require an API key passed via the `X-CSCAPI-KEY` header. Get your free key at [app.countrystatecity.in](https://app.countrystatecity.in).\n\n## Pricing & Limits\nThe fields returned, endpoints available, and request quotas depend on your plan. See current tiers and limits at:\n\n**[countrystatecity.in/pricing](https://countrystatecity.in/pricing)**\n\n## Data Access Levels\nEach plan includes a data access level that controls which fields are returned:\n\n- **Basic** — Core fields: id, name, iso2, iso3, phonecode, capital, currency, coordinates, region, timezones, emoji\n- **Coordinates** — Basic + extended metadata (population, tld, nationality, currency details, postal codes, etc.)\n- **Full** — All fields including translations (18+ languages) and wikiDataId\n\nFields restricted to higher tiers are marked in each schema below.\n\n## Feature Gating\nSome endpoints require a minimum tier. Restricted endpoints return `403` with an `upgradeUrl` when accessed on a lower plan. Check the [pricing page](https://countrystatecity.in/pricing) for current feature availability.\n\n## Rate Limiting\nRequests exceeding your daily or monthly quota receive a `429` response with your current limit, period, tier, and an upgrade URL.\n\n## Caching\nAll responses include `Cache-Control`, `ETag`, and `X-Cache` (HIT/MISS) headers. Use `If-None-Match` for conditional requests to receive `304 Not Modified`.\n\n## Usage Headers\nAll `/v1/*` responses include usage and plan headers:\n- `X-CSC-Plan` — your current tier\n- `X-CSC-Daily-Used` / `X-CSC-Daily-Limit` — today's usage vs limit\n- `X-CSC-Monthly-Used` / `X-CSC-Monthly-Limit` — this month's usage vs limit\n\nUse these to monitor consumption without a separate API call.",
     "contact": {
       "name": "Darshan Gada (dr5hn)",
       "email": "gadadarshan@gmail.com",
@@ -434,7 +434,7 @@
       "get": {
         "tags": ["Cities"],
         "summary": "Get all cities of a country",
-        "description": "Returns all cities for an entire country. This can be a large response (e.g., India has 48,000+ cities).\n\n**Availability:** Requires a higher-tier plan. Returns `403` on lower tiers. See [pricing](https://app.countrystatecity.in/pricing) for details.",
+        "description": "Returns all cities for an entire country. This can be a large response (e.g., India has 48,000+ cities).\n\n**Availability:** Requires a higher-tier plan. Returns `403` on lower tiers. See [pricing](https://countrystatecity.in/pricing) for details.",
         "operationId": "getCountryCities",
         "parameters": [
           {
@@ -514,7 +514,7 @@
       "get": {
         "tags": ["States"],
         "summary": "Get all states globally",
-        "description": "Returns all states/provinces across all countries. This is a large response (5,000+ records).\n\n**Availability:** Requires a paid plan. Returns `403` on free tiers. See [pricing](https://app.countrystatecity.in/pricing) for details.",
+        "description": "Returns all states/provinces across all countries. This is a large response (5,000+ records).\n\n**Availability:** Requires a paid plan. Returns `403` on free tiers. See [pricing](https://countrystatecity.in/pricing) for details.",
         "operationId": "getAllStates",
         "parameters": [
           {
@@ -1896,7 +1896,7 @@
                     "feature": "dataChangeFeed",
                     "currentTier": "professional",
                     "requiredTier": "business",
-                    "upgradeUrl": "https://app.countrystatecity.in/pricing"
+                    "upgradeUrl": "https://countrystatecity.in/pricing"
                   }
                 }
               }
@@ -3182,7 +3182,7 @@
           "upgradeUrl": {
             "type": "string",
             "description": "URL to upgrade your plan",
-            "example": "https://app.countrystatecity.in/pricing"
+            "example": "https://countrystatecity.in/pricing"
           }
         },
         "required": ["error"]
@@ -3201,7 +3201,7 @@
           },
           "upgradeUrl": {
             "type": "string",
-            "example": "https://app.countrystatecity.in/pricing"
+            "example": "https://countrystatecity.in/pricing"
           }
         },
         "required": ["error"]
@@ -3234,7 +3234,7 @@
             "example": {
               "error": "This feature is not available on your current plan.",
               "feature": "bulkStates",
-              "upgradeUrl": "https://app.countrystatecity.in/pricing"
+              "upgradeUrl": "https://countrystatecity.in/pricing"
             }
           }
         }
@@ -3249,7 +3249,7 @@
               "limit": 100,
               "period": "daily",
               "tier": "community",
-              "upgradeUrl": "https://app.countrystatecity.in/pricing"
+              "upgradeUrl": "https://countrystatecity.in/pricing"
             }
           }
         }
