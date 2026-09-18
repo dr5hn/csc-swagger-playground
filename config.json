@@ -12,7 +12,7 @@
       "name": "Creative Commons Attribution 4.0",
       "url": "https://creativecommons.org/licenses/by/4.0/"
     },
-    "version": "2.3.0"
+    "version": "2.4.0"
   },
   "servers": [
     {
@@ -32,6 +32,10 @@
     {
       "name": "Cities",
       "description": "City data — 150,000+ cities worldwide"
+    },
+    {
+      "name": "Postcodes",
+      "description": "Postcode and ZIP code lookup and search. Informational data, not address verification."
     },
     {
       "name": "Regions",
@@ -60,7 +64,8 @@
     {
       "name": "Changes",
       "description": "Data change feed — track additions, removals, and updates to place records over time. **Business plan only.**"
-    }
+    },
+    { "name": "Meta", "description": "Information about the dataset release currently served" }
   ],
   "paths": {
     "/countries": {
@@ -373,6 +378,20 @@
             "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "mum" }
           },
           {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "Filter by derived place classification. Comma-separated list of `settlement`, `administrative`, `section`, `unknown`. Free on every plan. Invalid values return `400` listing the accepted values.",
+            "schema": { "type": "string", "example": "settlement" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "Filter by the raw source `type` value. Comma-separated, e.g. `city,adm2`. **Requires Supporter+ plan**; lower plans receive `400` rather than the filter being ignored. Unrecognised values match zero rows.",
+            "schema": { "type": "string", "example": "city" }
+          },
+          {
             "name": "fields",
             "in": "query",
             "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Supporter+ plan.**",
@@ -423,6 +442,14 @@
               }
             }
           },
+          "400": {
+            "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "403": { "$ref": "#/components/responses/FeatureRestricted" },
           "429": { "$ref": "#/components/responses/RateLimited" }
@@ -450,6 +477,20 @@
             "description": "Search filter. Case-insensitive match on `name` and `native` fields. Min 2 characters. **Requires Supporter+ plan.**",
             "required": false,
             "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "mum" }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "Filter by derived place classification. Comma-separated list of `settlement`, `administrative`, `section`, `unknown`. Free on every plan. Invalid values return `400` listing the accepted values.",
+            "schema": { "type": "string", "example": "settlement" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "Filter by the raw source `type` value. Comma-separated, e.g. `city,adm2`. **Requires Supporter+ plan**; lower plans receive `400` rather than the filter being ignored. Unrecognised values match zero rows.",
+            "schema": { "type": "string", "example": "city" }
           },
           {
             "name": "fields",
@@ -499,6 +540,14 @@
                   "type": "array",
                   "items": { "$ref": "#/components/schemas/City" }
                 }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
               }
             }
           },
@@ -1082,7 +1131,7 @@
         "security": [{ "ApiKeyAuth": [] }]
       }
     },
-    "/currencies": {
+    "/currency": {
       "get": {
         "tags": ["Currencies"],
         "summary": "List all currencies",
@@ -1906,6 +1955,257 @@
         },
         "security": [{ "ApiKeyAuth": [] }]
       }
+    },
+    "/countries/{ciso}/postcodes": {
+      "get": {
+        "tags": ["Postcodes"],
+        "summary": "List or search postcodes in a country",
+        "operationId": "listPostcodesByCountry",
+        "description": "Page through a country's postcodes, or narrow them with a code/locality search, state, city or type filter. Cursor-paginated; there is no total count.\n\nInformational data only: this is not an address verification or mail-deliverability service.\n\n**Availability:** Supporter+ plan required, including a bare list with no filters.",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "required": true,
+            "description": "ISO 3166-1 alpha-2 country code, case-insensitive (e.g. `LK`). Numeric IDs and ISO3 codes are not accepted on postcode endpoints.",
+            "schema": { "type": "string", "minLength": 2, "maxLength": 2, "example": "LK" }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive search: codes starting with `q`, or locality names containing it. 2 to 100 characters.",
+            "schema": { "type": "string", "minLength": 2, "maxLength": 100, "example": "1100" }
+          },
+          {
+            "name": "state_code",
+            "in": "query",
+            "required": false,
+            "description": "Exact, case-insensitive state/province code filter.",
+            "schema": { "type": "string", "example": "DL" }
+          },
+          {
+            "name": "city_id",
+            "in": "query",
+            "required": false,
+            "description": "Exact city ID filter (positive integer).",
+            "schema": { "type": "integer", "minimum": 1, "example": 129881 }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "Exact, case-insensitive postcode type filter. Not a fixed enum; unrecognised values match zero rows.",
+            "schema": { "type": "string", "maxLength": 32, "example": "full" }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "description": "Comma-separated fields to include. `id` is always included. There is no `sort` on this endpoint.",
+            "schema": { "type": "string", "example": "code,locality_name" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Records per page, 1 to 100.",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Opaque `pagination.next_cursor` from the previous page. Resend the same filters, or omit them and send only the cursor.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of postcodes",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PostcodeListResponse" }
+              }
+            }
+          },
+          "304": { "description": "Not modified (sent `If-None-Match` matched the current `ETag`)" },
+          "400": {
+            "description": "Invalid country code or parameter, or a cursor that is expired, tampered with, from another country, or used with different filters",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": {
+            "description": "Plan below Supporter. Returned for every request to this endpoint, including a bare list.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": {
+                  "status": "error",
+                  "message": "This feature is not available on your current plan.",
+                  "details": {
+                    "feature": "searchEndpoint",
+                    "currentTier": "starter",
+                    "requiredTier": "supporter",
+                    "upgradeUrl": "https://countrystatecity.in/pricing"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown country (`details.reason`: `country_not_found`). A known country with no postcodes, or a filter with no matches, returns `200` with an empty `data` array.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": {
+                  "status": "error",
+                  "message": "Country not found.",
+                  "details": { "reason": "country_not_found" }
+                }
+              }
+            }
+          },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [
+          { "ApiKeyAuth": [] }
+        ]
+      }
+    },
+    "/countries/{ciso}/postcodes/{code}": {
+      "get": {
+        "tags": ["Postcodes"],
+        "summary": "Get postcode by code",
+        "operationId": "getPostcodeByCode",
+        "description": "Exact postcode lookup within a country. Returns **every** matching record, because one code can cover several localities.\n\nInformational data only: this is not an address verification or mail-deliverability service.\n\n**Availability:** All tiers.",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "required": true,
+            "description": "ISO 3166-1 alpha-2 country code, case-insensitive (e.g. `LK`). Numeric IDs and ISO3 codes are not accepted on postcode endpoints.",
+            "schema": { "type": "string", "minLength": 2, "maxLength": 2, "example": "LK" }
+          },
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "Postcode to look up, 1 to 20 characters. Case-insensitive and tolerant of repeated internal spaces (`gy1  1aa` matches `GY1 1AA`). URL-encode spaces.",
+            "schema": { "type": "string", "minLength": 1, "maxLength": 20, "example": "11104" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All records matching the code",
+            "headers": {
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" },
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "X-Cache": { "$ref": "#/components/headers/XCache" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PostcodeLookupResponse" }
+              }
+            }
+          },
+          "304": { "description": "Not modified (sent `If-None-Match` matched the current `ETag`)" },
+          "400": {
+            "description": "Invalid code (empty, over 20 characters, or containing `/`, `\\\\` or control characters)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": {
+                  "status": "error",
+                  "message": "postcode must be at most 20 characters"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": {
+            "description": "Unknown country (`country_not_found`), no postcode coverage (`postcode_coverage_unavailable`), or no match (`postcode_not_found`). See `details.reason`.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": {
+                  "status": "error",
+                  "message": "No postcode matches the given code.",
+                  "details": { "reason": "postcode_not_found" }
+                }
+              }
+            }
+          },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        },
+        "security": [
+          { "ApiKeyAuth": [] }
+        ]
+      }
+    },
+    "/meta/data-version": {
+      "get": {
+        "tags": ["Meta"],
+        "summary": "Get data version",
+        "operationId": "getDataVersion",
+        "description": "Returns which geographic data release the API is currently serving. Cached for up to about 5 minutes after an import.\n\n**Availability:** All tiers (counts toward your quota).",
+        "responses": {
+          "200": {
+            "description": "Current data release",
+            "headers": {
+              "X-Request-ID": { "$ref": "#/components/headers/XRequestId" },
+              "X-CSC-Data-Version": { "$ref": "#/components/headers/XCSCDataVersion" },
+              "X-CSC-Data-Updated-At": { "$ref": "#/components/headers/XCSCDataUpdatedAt" },
+              "X-CSC-Plan": { "$ref": "#/components/headers/XCSCPlan" },
+              "X-CSC-Daily-Used": { "$ref": "#/components/headers/XCSCDailyUsed" },
+              "X-CSC-Daily-Limit": { "$ref": "#/components/headers/XCSCDailyLimit" },
+              "X-CSC-Monthly-Used": { "$ref": "#/components/headers/XCSCMonthlyUsed" },
+              "X-CSC-Monthly-Limit": { "$ref": "#/components/headers/XCSCMonthlyLimit" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DataVersion" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": {
+            "description": "Version information temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": {
+                  "status": "error",
+                  "message": "Data version information is temporarily unavailable."
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          { "ApiKeyAuth": [] }
+        ]
+      }
     }
   },
   "components": {
@@ -2221,6 +2521,12 @@
             "description": "City name in English",
             "example": "Mumbai"
           },
+          "kind": {
+            "type": "string",
+            "enum": ["settlement", "administrative", "section", "unknown"],
+            "description": "Derived classification of the place, computed from `type`. Returned on every tier, including **Basic**. See [City Types](https://docs.countrystatecity.in/database/city-types).",
+            "example": "settlement"
+          },
           "state_id": {
             "type": "integer",
             "format": "int64",
@@ -2266,7 +2572,7 @@
           "type": {
             "type": "string",
             "nullable": true,
-            "description": "Settlement type. **Coordinates tier and above.**"
+            "description": "Raw source settlement type, e.g. `city`, `adm2`. See [City Types](https://docs.countrystatecity.in/database/city-types). **Coordinates tier and above.**"
           },
           "level": {
             "type": "integer",
@@ -3205,6 +3511,183 @@
           }
         },
         "required": ["error"]
+      },
+      "Postcode": {
+        "type": "object",
+        "description": "A postcode record. `id` and foreign keys are numeric strings for 64-bit safety. Fields above the Basic tier are stripped, not nulled, for lower plans.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Unique identifier, as a numeric string",
+            "example": "670115"
+          },
+          "code": {
+            "type": "string",
+            "description": "Postcode as stored, original spacing and casing preserved",
+            "example": "11104"
+          },
+          "country_code": { "type": "string", "description": "ISO2 country code", "example": "LK" },
+          "state_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "State/province code, when linked",
+            "example": "12"
+          },
+          "locality_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Place name associated with the postcode",
+            "example": "Wattala"
+          },
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "description": "Source-provided classification (not a fixed enum), e.g. `full`, `area`, `fsa`, `po_box`, `street`",
+            "example": "full"
+          },
+          "country_id": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "Country ID. **Coordinates tier and above.**",
+            "example": "208"
+          },
+          "state_id": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "State ID. **Coordinates tier and above.**",
+            "nullable": true,
+            "example": "2804"
+          },
+          "city_id": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "description": "City ID, when linked to a city. **Coordinates tier and above.**",
+            "nullable": true
+          },
+          "latitude": {
+            "type": "number",
+            "nullable": true,
+            "description": "Latitude. **Coordinates tier and above.**",
+            "example": 6.9906677
+          },
+          "longitude": {
+            "type": "number",
+            "nullable": true,
+            "description": "Longitude. **Coordinates tier and above.**",
+            "example": 79.8931709
+          },
+          "source": {
+            "type": "string",
+            "nullable": true,
+            "description": "Originating data source. **Full tier only.**"
+          },
+          "wikiDataId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Wikidata Q-ID. **Full tier only.**"
+          }
+        },
+        "required": ["id", "code", "country_code"]
+      },
+      "PostcodeLookupResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "Every record matching the code, ascending `id`. Never empty (no match is a `404`).",
+            "items": { "$ref": "#/components/schemas/Postcode" }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "country_code": { "type": "string", "example": "LK" },
+              "query": {
+                "type": "string",
+                "description": "Normalised code used for matching (trimmed, uppercased, repeated spaces collapsed)",
+                "example": "11104"
+              },
+              "match_count": { "type": "integer", "example": 3 }
+            }
+          }
+        },
+        "required": ["data", "meta"]
+      },
+      "PostcodeListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "Matching records for this page, ordered by code then `id`",
+            "items": { "$ref": "#/components/schemas/Postcode" }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "limit": { "type": "integer", "example": 50 },
+              "next_cursor": {
+                "type": "string",
+                "nullable": true,
+                "description": "Opaque token for the next page, `null` on the last page"
+              },
+              "has_more": { "type": "boolean" }
+            }
+          }
+        },
+        "required": ["data", "pagination"]
+      },
+      "DataVersion": {
+        "type": "object",
+        "properties": {
+          "dataVersion": {
+            "type": "string",
+            "description": "`<source-release>-<YYYY.MM.DD>`; the date is when the release was imported into the API. Same value as the `X-CSC-Data-Version` header.",
+            "example": "v3.2-export.7-2026.07.30"
+          },
+          "sourceRelease": {
+            "type": "string",
+            "description": "Upstream release tag. Compare this, not `dataVersion`, to check parity with the npm packages.",
+            "example": "v3.2-export.7"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the release was imported (UTC)",
+            "example": "2026-07-30T09:01:18.000Z"
+          },
+          "recordCounts": {
+            "type": "object",
+            "description": "Row counts snapshotted at import time",
+            "properties": {
+              "regions": { "type": "integer", "example": 6 },
+              "subregions": { "type": "integer", "example": 22 },
+              "countries": { "type": "integer", "example": 250 },
+              "states": { "type": "integer", "example": 5308 },
+              "cities": { "type": "integer", "example": 152970 }
+            }
+          }
+        },
+        "required": ["dataVersion", "sourceRelease", "updatedAt", "recordCounts"]
+      },
+      "StatusError": {
+        "type": "object",
+        "description": "Error envelope used by the postcode and meta endpoints.",
+        "properties": {
+          "status": { "type": "string", "example": "error" },
+          "message": { "type": "string" },
+          "details": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "reason": {
+                "type": "string",
+                "description": "Machine-readable reason. Check this instead of parsing `message`."
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "required": ["status", "message"]
       }
     },
     "responses": {
