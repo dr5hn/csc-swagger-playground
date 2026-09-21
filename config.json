@@ -2933,9 +2933,9 @@
             "description": "Target format",
             "example": "iso3"
           },
-          "value": {
+          "input": {
             "type": "string",
-            "description": "The input code",
+            "description": "The input code, echoed back from the `value` query parameter",
             "example": "US"
           },
           "result": {
@@ -2944,7 +2944,7 @@
             "example": "USA"
           }
         },
-        "required": ["from", "to", "value", "result"]
+        "required": ["from", "to", "input", "result"]
       },
       "FuzzyResult": {
         "type": "object",
