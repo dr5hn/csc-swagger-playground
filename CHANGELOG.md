@@ -10,6 +10,7 @@
 
 ### Fixed
 - Currency list path corrected from `/currencies` to `/currency`, matching the live API (the old path returned `404`)
+- `IsoConvert` response field renamed from `value` to `input`, matching the live API response. The `value` **query parameter** is unchanged
 
 ## [2.2.0] - 2026-04-03
 
