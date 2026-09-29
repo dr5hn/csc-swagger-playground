@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.4.1] - 2026-09-29
+
+### Fixed
+- Tier-gating text synced to the September 2026 pricing realignment: search, field selection, sorting, global states, country cities, regions, phone, currency and postcode listing are Starter+; translations, localized names and fuzzy/autocomplete/nearby search are Supporter+; the data change feed is Professional+
+- City `type` filter documented as Supporter+ (it is an extended field), and the country `sort` example uses fields a Starter plan returns
+- The shared feature-denied `403` (`FeatureRestricted`/`FeatureError`) now shows the real `status`/`message`/`details` envelope with `feature`, `currentTier`, `requiredTier` and `upgradeUrl`
+- Fuzzy search, autocomplete and nearby search have their own `403` examples (Supporter+) instead of the shared Starter one
+- Validation `400`s (city filters, search, currency, phone parsing and ISO lookups) and the timezone, phone and ISO lookup `404`s document the `status`/`message` body the API returns, and the `City` schema lists `kind` among the Basic fields
+- The caching overview no longer promises `ETag`/`X-Cache` on every response: phone number parsing is never cached
+
 ## [2.4.0] - 2026-09-18
 
 ### Added
