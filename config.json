@@ -12,7 +12,7 @@
       "name": "Creative Commons Attribution 4.0",
       "url": "https://creativecommons.org/licenses/by/4.0/"
     },
-    "version": "2.4.0"
+    "version": "2.4.1"
   },
   "servers": [
     {
@@ -92,7 +92,7 @@
           {
             "name": "sort",
             "in": "query",
-            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. E.g. `name:asc,population:desc`. **Requires Starter+ plan.**",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. E.g. `name:asc,iso2:desc`. **Requires Starter+ plan**; you can sort only by fields your plan returns (e.g. `population` needs Supporter+).",
             "required": false,
             "schema": { "type": "string", "example": "name:asc" }
           },
@@ -388,7 +388,7 @@
             "name": "type",
             "in": "query",
             "required": false,
-            "description": "Filter by the raw source `type` value. Comma-separated, e.g. `city,adm2`. **Requires Starter+ plan**; lower plans receive `400` rather than the filter being ignored. Unrecognised values match zero rows.",
+            "description": "Filter by the raw source `type` value. Comma-separated, e.g. `city,adm2`. **Requires Supporter+ plan** (`type` is an extended field); lower plans receive `400` rather than the filter being ignored. Unrecognised values match zero rows.",
             "schema": { "type": "string", "example": "city" }
           },
           {
@@ -443,7 +443,7 @@
             }
           },
           "400": {
-            "description": "Invalid `kind` value, or `type` used on a plan below Starter",
+            "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" }
@@ -489,7 +489,7 @@
             "name": "type",
             "in": "query",
             "required": false,
-            "description": "Filter by the raw source `type` value. Comma-separated, e.g. `city,adm2`. **Requires Starter+ plan**; lower plans receive `400` rather than the filter being ignored. Unrecognised values match zero rows.",
+            "description": "Filter by the raw source `type` value. Comma-separated, e.g. `city,adm2`. **Requires Supporter+ plan** (`type` is an extended field); lower plans receive `400` rather than the filter being ignored. Unrecognised values match zero rows.",
             "schema": { "type": "string", "example": "city" }
           },
           {
@@ -544,7 +544,7 @@
             }
           },
           "400": {
-            "description": "Invalid `kind` value, or `type` used on a plan below Starter",
+            "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Error" }
@@ -3496,21 +3496,20 @@
       "FeatureError": {
         "type": "object",
         "properties": {
-          "error": {
-            "type": "string",
-            "example": "This feature is not available on your current plan."
-          },
-          "feature": {
-            "type": "string",
-            "description": "The feature flag that was denied",
-            "example": "bulkStates"
-          },
-          "upgradeUrl": {
-            "type": "string",
-            "example": "https://countrystatecity.in/pricing"
+          "status": { "type": "string", "enum": ["error"] },
+          "message": { "type": "string", "example": "This feature is not available on your current plan." },
+          "details": {
+            "type": "object",
+            "properties": {
+              "feature": { "type": "string", "description": "The feature flag that was denied", "example": "bulkStates" },
+              "currentTier": { "type": "string", "example": "community" },
+              "requiredTier": { "type": "string", "nullable": true, "description": "Lowest plan that unlocks the feature; null when it cannot be determined", "example": "starter" },
+              "upgradeUrl": { "type": "string", "format": "uri", "example": "https://countrystatecity.in/pricing" }
+            },
+            "required": ["feature", "currentTier", "requiredTier", "upgradeUrl"]
           }
         },
-        "required": ["error"]
+        "required": ["status", "message", "details"]
       },
       "Postcode": {
         "type": "object",
@@ -3715,9 +3714,14 @@
           "application/json": {
             "schema": { "$ref": "#/components/schemas/FeatureError" },
             "example": {
-              "error": "This feature is not available on your current plan.",
-              "feature": "bulkStates",
-              "upgradeUrl": "https://countrystatecity.in/pricing"
+              "status": "error",
+              "message": "This feature is not available on your current plan.",
+              "details": {
+                "feature": "bulkStates",
+                "currentTier": "community",
+                "requiredTier": "starter",
+                "upgradeUrl": "https://countrystatecity.in/pricing"
+              }
             }
           }
         }
