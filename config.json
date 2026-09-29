@@ -1024,7 +1024,15 @@
             }
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" },
+          "404": {
+            "description": "Country not found, or no timezone data for it",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "Country not found." }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -1072,7 +1080,15 @@
             }
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" },
+          "404": {
+            "description": "State not found, or no timezone data for it",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "State not found." }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -1127,7 +1143,15 @@
             }
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" },
+          "404": {
+            "description": "City not found, or no timezone data for it",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "City not found." }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -1307,7 +1331,15 @@
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "403": { "$ref": "#/components/responses/FeatureRestricted" },
-          "404": { "$ref": "#/components/responses/NotFound" },
+          "404": {
+            "description": "Country not found, or no dial code for it",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "Country not found." }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -1355,7 +1387,15 @@
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "403": { "$ref": "#/components/responses/FeatureRestricted" },
-          "404": { "$ref": "#/components/responses/NotFound" },
+          "404": {
+            "description": "No country matches the number",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "Could not identify a country for the given phone number." }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -1419,7 +1459,15 @@
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "403": { "$ref": "#/components/responses/FeatureRestricted" },
-          "404": { "$ref": "#/components/responses/NotFound" },
+          "404": {
+            "description": "No country matches the code",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "Country not found for the given code" }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -1469,7 +1517,15 @@
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "403": { "$ref": "#/components/responses/FeatureRestricted" },
-          "404": { "$ref": "#/components/responses/NotFound" },
+          "404": {
+            "description": "No state matches the ISO code",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "State not found for the given ISO code" }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -1533,7 +1589,15 @@
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
           "403": { "$ref": "#/components/responses/FeatureRestricted" },
-          "404": { "$ref": "#/components/responses/NotFound" },
+          "404": {
+            "description": "No country matches the value, or it has no code in the requested format",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "Country not found for the given code" }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
