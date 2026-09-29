@@ -446,7 +446,8 @@
             "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "Field \"type\" is not available on your current plan." }
               }
             }
           },
@@ -547,7 +548,8 @@
             "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
+                "schema": { "$ref": "#/components/schemas/StatusError" },
+                "example": { "status": "error", "message": "Field \"type\" is not available on your current plan." }
               }
             }
           },
@@ -1624,7 +1626,24 @@
             }
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
-          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "403": {
+            "description": "Feature not available on your current plan. Requires Supporter+.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FeatureError" },
+                "example": {
+                  "status": "error",
+                  "message": "This feature is not available on your current plan.",
+                  "details": {
+                    "feature": "fuzzySearch",
+                    "currentTier": "starter",
+                    "requiredTier": "supporter",
+                    "upgradeUrl": "https://countrystatecity.in/pricing"
+                  }
+                }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -1718,7 +1737,24 @@
             }
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
-          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "403": {
+            "description": "Feature not available on your current plan. Requires Supporter+.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FeatureError" },
+                "example": {
+                  "status": "error",
+                  "message": "This feature is not available on your current plan.",
+                  "details": {
+                    "feature": "autocomplete",
+                    "currentTier": "starter",
+                    "requiredTier": "supporter",
+                    "upgradeUrl": "https://countrystatecity.in/pricing"
+                  }
+                }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -1840,7 +1876,24 @@
             }
           },
           "401": { "$ref": "#/components/responses/Unauthorized" },
-          "403": { "$ref": "#/components/responses/FeatureRestricted" },
+          "403": {
+            "description": "Feature not available on your current plan. Requires Supporter+.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FeatureError" },
+                "example": {
+                  "status": "error",
+                  "message": "This feature is not available on your current plan.",
+                  "details": {
+                    "feature": "nearbySearch",
+                    "currentTier": "starter",
+                    "requiredTier": "supporter",
+                    "upgradeUrl": "https://countrystatecity.in/pricing"
+                  }
+                }
+              }
+            }
+          },
           "429": { "$ref": "#/components/responses/RateLimited" }
         },
         "security": [{ "ApiKeyAuth": [] }]
@@ -2508,7 +2561,7 @@
       },
       "City": {
         "type": "object",
-        "description": "City object. Fields returned depend on your plan's data access level. Basic tier plans receive only `id` and `name`.",
+        "description": "City object. Fields returned depend on your plan's data access level. Basic tier plans receive `id`, `name` and `kind` by default.",
         "properties": {
           "id": {
             "type": "integer",
@@ -3709,7 +3762,7 @@
         }
       },
       "FeatureRestricted": {
-        "description": "Feature not available on your current plan. Upgrade to access this endpoint.",
+        "description": "Feature not available on your current plan. Upgrade to access this endpoint. `details.feature` names the denied feature and `details.requiredTier` the lowest plan that includes it (the example is for `/states`).",
         "content": {
           "application/json": {
             "schema": { "$ref": "#/components/schemas/FeatureError" },
