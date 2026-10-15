@@ -41,11 +41,11 @@ To smoke-test in **Brave Browser** with Playwright, install the test tool in a t
 ```bash
 export PATH='/Users/darshan/Library/Application Support/fnm/node-versions/v26.12.0/installation/bin':"$PATH"
 test_tools=$(mktemp -d)
-PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --prefix "$test_tools" --no-save --package-lock=false --prefer-online playwright@1.64.1
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --prefix "$test_tools" --cache "$test_tools/npm-cache" --no-save --package-lock=false --prefer-online playwright@1.64.1
 NODE_PATH="$test_tools/node_modules" node scripts/smoke-brave.cjs
 ```
 
-The script serves this folder on an ephemeral localhost port, launches `/Applications/Brave Browser.app/Contents/MacOS/Brave Browser`, and blocks all requests outside that localhost origin. It verifies the fetched spec, every tag and operation, expanded operation content, and absence of console errors. It exits unsuccessfully on a browser launch error and always closes its server. It never executes an API request.
+The script serves this folder on an ephemeral localhost port, launches `/Applications/Brave Browser.app/Contents/MacOS/Brave Browser`, and blocks all network requests outside that localhost origin. It verifies the fetched spec, every tag and operation, expanded operation content, and absence of console errors. For every operation it clicks **Try it out**, fills the spec's parameter examples/defaults, and checks the generated method, path, query and displayed request URL. API fetches receive an in-memory response before reaching the network; no API credentials or real API calls are used. It exits unsuccessfully on a browser launch error and always closes its server.
 
 ## Updating the Spec
 
