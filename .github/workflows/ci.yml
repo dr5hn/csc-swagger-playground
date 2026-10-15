@@ -32,7 +32,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v5
         with:
-          node-version: "20"
+          node-version: "26"
 
       - name: Check config.json parses as JSON
         run: |
@@ -42,7 +42,7 @@ jobs:
       - name: Lint OpenAPI description
         run: |
           set -euo pipefail
-          npx --yes @redocly/cli@2.47.0 lint config.json
+          npx --yes --prefer-online @redocly/cli@2.64.0 lint config.json
 
       - name: Check every internal $ref resolves
         run: |
