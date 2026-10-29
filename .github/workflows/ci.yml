@@ -27,10 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: "26"
 
@@ -42,7 +42,7 @@ jobs:
       - name: Lint OpenAPI description
         run: |
           set -euo pipefail
-          npx --yes --prefer-online @redocly/cli@2.64.0 lint config.json
+          npx --yes --prefer-online @redocly/cli@2.72.0 lint config.json
 
       - name: Check every internal $ref resolves
         run: |

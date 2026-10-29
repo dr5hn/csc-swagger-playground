@@ -8,10 +8,10 @@ Interactive API documentation for the [Country State City API](https://countryst
 
 A static [Swagger UI](https://swagger.io/tools/swagger-ui/) deployment hosted on GitHub Pages. The OpenAPI 3.0 spec lives in `config.json` and documents all geographic data endpoints, data access levels, and error responses.
 
-Vendored **swagger-ui-dist 5.33.2**, from the [official npm tarball](https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-5.33.2.tgz). Its SHA-512 was verified against the registry's `dist.integrity`:
+Vendored **swagger-ui-dist 5.34.0**, from the [official npm tarball](https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-5.34.0.tgz). Its SHA-512 was verified against the registry's `dist.integrity`:
 
 ```text
-sha512-MyrWX06zkJRYPnIau8Qj8F6KfzS+Qj8D9AR36vCWkkC9ts1r1DYF84apgCvZBzO2Wzm7G7loCd5VS+4JLWoyLQ==
+sha512-H6tAIjr3XqE31PbkZl0OFya1ziRLDfTwh3J6OHdumPtPCLfjTnyLeagl/55kFNZcTOz9a9QI9WP0FXldwiGJag==
 ```
 
 Only the browser bundles used by `index.html`, their source maps, the stylesheet, and licence notices are retained. Keep those files from the same release when updating. Preserve the local initializer, HTML, CSS, OpenAPI spec, and OAuth redirect page. The external Swagger validator is disabled; CI validates the spec with Redocly CLI on Node 26.
