@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Update vendored Swagger UI from 5.33.2 to 5.34.0 using the integrity-verified official npm tarball, keeping the local initializer and site assets
+- Update CI to Redocly CLI 2.72.0, actions/checkout 7.0.1 and actions/setup-node 7.1.0, retaining Node 26
+
 ## [2.4.1] - 2026-09-29
 
 ### Fixed
