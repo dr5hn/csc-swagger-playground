@@ -4443,18 +4443,18 @@
           "dataVersion": {
             "type": "string",
             "description": "`<source-release>-<YYYY.MM.DD>`; the date is when the release was imported into the API. Same value as the `X-CSC-Data-Version` header.",
-            "example": "v3.2-export.7-2026.07.30"
+            "example": "v6.2.0-export.1-2026.11.24"
           },
           "sourceRelease": {
             "type": "string",
             "description": "Upstream release tag. Compare this, not `dataVersion`, to check parity with the npm packages.",
-            "example": "v3.2-export.7"
+            "example": "v6.2.0-export.1"
           },
           "updatedAt": {
             "type": "string",
             "format": "date-time",
             "description": "When the release was imported (UTC)",
-            "example": "2026-07-30T09:01:18.000Z"
+            "example": "2026-11-24T09:09:46.944Z"
           },
           "recordCounts": {
             "type": "object",
@@ -4463,7 +4463,7 @@
               "regions": { "type": "integer", "example": 6 },
               "subregions": { "type": "integer", "example": 22 },
               "countries": { "type": "integer", "example": 250 },
-              "states": { "type": "integer", "example": 5308 },
+              "states": { "type": "integer", "example": 5327 },
               "cities": { "type": "integer", "example": 171345 },
               "counties": { "type": "integer", "example": 14058 },
               "postcodes": { "type": "integer", "example": 728556 }
