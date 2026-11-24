@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Country State City API",
-    "description": "Geographic data API providing countries, states, cities, timezones, currencies, and phone dial codes with tiered access levels.\n\n## Authentication\nAll endpoints require an API key passed via the `X-CSCAPI-KEY` header. Get your free key at [app.countrystatecity.in](https://app.countrystatecity.in).\n\n## Pricing & Limits\nThe fields returned, endpoints available, and request quotas depend on your plan. See current tiers and limits at:\n\n**[countrystatecity.in/pricing](https://countrystatecity.in/pricing)**\n\n## Data Access Levels\nEach plan includes a data access level that controls which fields are returned:\n\n- **Basic** — Core fields: id, name, iso2, iso3, phonecode, capital, currency, coordinates, region, timezones, emoji\n- **Coordinates** — Basic + extended metadata (population, tld, nationality, currency details, postal codes, etc.)\n- **Full** — All fields including translations (18+ languages) and wikiDataId\n\nFields restricted to higher tiers are marked in each schema below.\n\n## Feature Gating\nSome endpoints require a minimum tier. Restricted endpoints return `403` with an `upgradeUrl` when accessed on a lower plan. Check the [pricing page](https://countrystatecity.in/pricing) for current feature availability.\n\n## Rate Limiting\nRequests exceeding your daily or monthly quota receive a `429` response with your current limit, period, tier, and an upgrade URL.\n\n## Caching\nCacheable geographic responses include `Cache-Control`, `ETag`, and `X-Cache` (HIT/MISS) headers; send `If-None-Match` on them to receive `304 Not Modified`. Phone number parsing is never cached (`Cache-Control: no-store`, no `ETag`); see each endpoint for exceptions.\n\n## Usage Headers\nAll `/v1/*` responses include usage and plan headers:\n- `X-CSC-Plan` — your current tier\n- `X-CSC-Daily-Used` / `X-CSC-Daily-Limit` — today's usage vs limit\n- `X-CSC-Monthly-Used` / `X-CSC-Monthly-Limit` — this month's usage vs limit\n\nUse these to monitor consumption without a separate API call.",
+    "description": "Geographic data API providing countries, states, counties, cities, postcodes, timezones, currencies, and phone dial codes with tiered access levels.\n\n## Authentication\nAll endpoints require an API key passed via the `X-CSCAPI-KEY` header. Get your free key at [app.countrystatecity.in](https://app.countrystatecity.in).\n\n## Pricing & Limits\nThe fields returned, endpoints available, and request quotas depend on your plan. See current tiers and limits at:\n\n**[countrystatecity.in/pricing](https://countrystatecity.in/pricing)**\n\n## Data Access Levels\nEach plan includes a data access level that controls which fields are returned:\n\n- **Basic** — Core fields: id, name, iso2, iso3, phonecode, capital, currency, coordinates, region, timezones, emoji\n- **Coordinates** — Basic + extended metadata (population, tld, nationality, currency details, postal codes, etc.)\n- **Full** — All fields including translations (18+ languages) and wikiDataId\n\nFields restricted to higher tiers are marked in each schema below.\n\n## Feature Gating\nSome endpoints require a minimum tier. Restricted endpoints return `403` with an `upgradeUrl` when accessed on a lower plan. Check the [pricing page](https://countrystatecity.in/pricing) for current feature availability.\n\n## Rate Limiting\nRequests exceeding your daily or monthly quota receive a `429` response with your current limit, period, tier, and an upgrade URL.\n\n## Caching\nCacheable geographic responses include `Cache-Control`, `ETag`, and `X-Cache` (HIT/MISS) headers; send `If-None-Match` on them to receive `304 Not Modified`. Phone number parsing is never cached (`Cache-Control: no-store`, no `ETag`); see each endpoint for exceptions.\n\n## Usage Headers\nAll `/v1/*` responses include usage and plan headers:\n- `X-CSC-Plan` — your current tier\n- `X-CSC-Daily-Used` / `X-CSC-Daily-Limit` — today's usage vs limit\n- `X-CSC-Monthly-Used` / `X-CSC-Monthly-Limit` — this month's usage vs limit\n\nUse these to monitor consumption without a separate API call.",
     "contact": {
       "name": "Darshan Gada (dr5hn)",
       "email": "gadadarshan@gmail.com",
@@ -12,7 +12,7 @@
       "name": "Creative Commons Attribution 4.0",
       "url": "https://creativecommons.org/licenses/by/4.0/"
     },
-    "version": "2.4.1"
+    "version": "2.5.0"
   },
   "servers": [
     {
@@ -32,6 +32,10 @@
     {
       "name": "Cities",
       "description": "City data — 150,000+ cities worldwide"
+    },
+    {
+      "name": "Counties",
+      "description": "Country/state county lists, multi-state source memberships and explicitly linked cities. Basic lookups on all plans."
     },
     {
       "name": "Postcodes",
@@ -65,7 +69,10 @@
       "name": "Changes",
       "description": "Data change feed — track additions, removals, and updates to place records over time. **Professional and Business plans only.**"
     },
-    { "name": "Meta", "description": "Information about the dataset release currently served" }
+    {
+      "name": "Meta",
+      "description": "Information about the dataset release currently served"
+    }
   ],
   "paths": {
     "/countries": {
@@ -2079,7 +2086,7 @@
         "tags": ["Postcodes"],
         "summary": "List or search postcodes in a country",
         "operationId": "listPostcodesByCountry",
-        "description": "Page through a country's postcodes, or narrow them with a code/locality search, state, city or type filter. Cursor-paginated; there is no total count.\n\nInformational data only: this is not an address verification or mail-deliverability service.\n\n**Availability:** Starter+ plan required, including a bare list with no filters.",
+        "description": "Page through a country's postcodes, or narrow them with a code/locality search, state, city or type filter. Cursor-paginated; there is no total count.\n\nInformational data only: this is not an address verification or mail-deliverability service.\n\n**Availability:** Starter+ plan required, including a bare list with no filters.\n\nChecked 24 November 2026: hosted v6.2.0-export.1 contains 728,556 rows across 117 countries. State/city links and coordinates may be null. No county relationship is inferred.",
         "parameters": [
           {
             "name": "ciso",
@@ -2106,8 +2113,8 @@
             "name": "city_id",
             "in": "query",
             "required": false,
-            "description": "Exact city ID filter (positive integer).",
-            "schema": { "type": "integer", "minimum": 1, "example": 129881 }
+            "description": "Exact source city ID (positive 64-bit integer). Preserve null source links; do not infer them from locality names.",
+            "schema": {"type": "string", "pattern": "^[1-9][0-9]*$", "example": "3681"}
           },
           {
             "name": "type",
@@ -2210,7 +2217,7 @@
         "tags": ["Postcodes"],
         "summary": "Get postcode by code",
         "operationId": "getPostcodeByCode",
-        "description": "Exact postcode lookup within a country. Returns **every** matching record, because one code can cover several localities.\n\nInformational data only: this is not an address verification or mail-deliverability service.\n\n**Availability:** All tiers.",
+        "description": "Exact postcode lookup within a country. Returns **every** matching record, because one code can cover several localities.\n\nInformational data only: this is not an address verification or mail-deliverability service.\n\n**Availability:** All tiers.\n\nChecked 24 November 2026: hosted v6.2.0-export.1 contains 728,556 rows across 117 countries. State/city links and coordinates may be null. No county relationship is inferred.",
         "parameters": [
           {
             "name": "ciso",
@@ -2323,6 +2330,641 @@
         "security": [
           { "ApiKeyAuth": [] }
         ]
+      }
+    },
+    "/countries/{ciso}/counties": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "tags": [
+          "Counties"
+        ],
+        "summary": "Get counties of a country",
+        "operationId": "getCountryCounties",
+        "description": "All standard REST plans can read Basic county fields. Supporter+ adds rich fields. Lists return all matches. State memberships preserve multi-state counties and unknown primary state links.",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "description": "ISO2 country code or numeric country ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "NZ"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Case-insensitive substring match on the English name. Requires Starter+, 2–100 characters.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Starter+ plan.**",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "County sort: id, name, country_code, state_code, type, population, latitude, longitude. Starter+; fields must be available on your data access level.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Supporter+ plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 7,
+              "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$"
+            }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Supporter+ plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get counties of a country",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "X-Cache": {
+                "$ref": "#/components/headers/XCache"
+              },
+              "X-CSC-Plan": {
+                "$ref": "#/components/headers/XCSCPlan"
+              },
+              "X-CSC-Daily-Used": {
+                "$ref": "#/components/headers/XCSCDailyUsed"
+              },
+              "X-CSC-Daily-Limit": {
+                "$ref": "#/components/headers/XCSCDailyLimit"
+              },
+              "X-CSC-Monthly-Used": {
+                "$ref": "#/components/headers/XCSCMonthlyUsed"
+              },
+              "X-CSC-Monthly-Limit": {
+                "$ref": "#/components/headers/XCSCMonthlyLimit"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/County"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusError"
+                },
+                "example": {
+                  "status": "error",
+                  "message": "Field \"type\" is not available on your current plan."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/FeatureRestricted"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "404": {
+            "description": "Country, state or county not found. A valid parent with no matching list rows returns an empty array.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/countries/{ciso}/states/{siso}/counties": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "tags": [
+          "Counties"
+        ],
+        "summary": "Get counties linked to a state",
+        "operationId": "getCountryStateCounties",
+        "description": "Includes every county explicitly linked to this state. Each returned states array retains all memberships; primary state_id/state_code can be null. Basic lookups on all plans; rich fields on Supporter+.",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "description": "ISO2 country code or numeric country ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "NZ"
+            }
+          },
+          {
+            "name": "siso",
+            "in": "path",
+            "description": "ISO2 code of the state (e.g., `MH`)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "WKO"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Case-insensitive substring match on the English name. Requires Starter+, 2–100 characters.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Starter+ plan.**",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "County sort: id, name, country_code, state_code, type, population, latitude, longitude. Starter+; fields must be available on your data access level.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Supporter+ plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 7,
+              "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$"
+            }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Supporter+ plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get counties linked to a state",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "X-Cache": {
+                "$ref": "#/components/headers/XCache"
+              },
+              "X-CSC-Plan": {
+                "$ref": "#/components/headers/XCSCPlan"
+              },
+              "X-CSC-Daily-Used": {
+                "$ref": "#/components/headers/XCSCDailyUsed"
+              },
+              "X-CSC-Daily-Limit": {
+                "$ref": "#/components/headers/XCSCDailyLimit"
+              },
+              "X-CSC-Monthly-Used": {
+                "$ref": "#/components/headers/XCSCMonthlyUsed"
+              },
+              "X-CSC-Monthly-Limit": {
+                "$ref": "#/components/headers/XCSCMonthlyLimit"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/County"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusError"
+                },
+                "example": {
+                  "status": "error",
+                  "message": "Field \"type\" is not available on your current plan."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/FeatureRestricted"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "404": {
+            "description": "Country, state or county not found. A valid parent with no matching list rows returns an empty array.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/countries/{ciso}/counties/{countyId}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "tags": [
+          "Counties"
+        ],
+        "summary": "Get one county within a country",
+        "operationId": "getCounty",
+        "description": "A country-scoped county lookup. A county ID belonging to another country returns 404. Basic fields on every standard REST plan; richer fields follow existing coordinates/full access rules.",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "description": "ISO2 country code or numeric country ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "NZ"
+            }
+          },
+          {
+            "name": "countyId",
+            "in": "path",
+            "required": true,
+            "description": "Positive safe integer county ID, scoped to the specified country.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]+$",
+              "example": "14024"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Starter+ plan.**",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Supporter+ plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 7,
+              "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$"
+            }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Supporter+ plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get one county within a country",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "X-Cache": {
+                "$ref": "#/components/headers/XCache"
+              },
+              "X-CSC-Plan": {
+                "$ref": "#/components/headers/XCSCPlan"
+              },
+              "X-CSC-Daily-Used": {
+                "$ref": "#/components/headers/XCSCDailyUsed"
+              },
+              "X-CSC-Daily-Limit": {
+                "$ref": "#/components/headers/XCSCDailyLimit"
+              },
+              "X-CSC-Monthly-Used": {
+                "$ref": "#/components/headers/XCSCMonthlyUsed"
+              },
+              "X-CSC-Monthly-Limit": {
+                "$ref": "#/components/headers/XCSCMonthlyLimit"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/County"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusError"
+                },
+                "example": {
+                  "status": "error",
+                  "message": "Field \"type\" is not available on your current plan."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/FeatureRestricted"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "404": {
+            "description": "Country, state or county not found. A valid parent with no matching list rows returns an empty array.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/countries/{ciso}/counties/{countyId}/cities": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "tags": [
+          "Counties"
+        ],
+        "summary": "Get source-linked cities of a county",
+        "operationId": "getCountyCities",
+        "description": "Returns only explicit source city links within the county country. Unknown links are not inferred from names or postcodes. Basic city fields on all plans; rich fields and query features use their existing gates.",
+        "parameters": [
+          {
+            "name": "ciso",
+            "in": "path",
+            "description": "ISO2 country code or numeric country ID.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "NZ"
+            }
+          },
+          {
+            "name": "countyId",
+            "in": "path",
+            "required": true,
+            "description": "Positive safe integer county ID, scoped to the specified country.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]+$",
+              "example": "14024"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Case-insensitive substring match on the English name. Requires Starter+, 2–100 characters.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "Filter by derived place classification. Comma-separated list of `settlement`, `administrative`, `section`, `unknown`. Free on every plan. Invalid values return `400` listing the accepted values.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "Filter by the raw source `type` value. Comma-separated, e.g. `city,adm2`. **Requires Supporter+ plan** (`type` is an extended field); lower plans receive `400` rather than the filter being ignored. Unrecognised values match zero rows.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response. `id` is always included. **Requires Starter+ plan.**",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Comma-separated sort tokens: `field` or `field:asc|desc`. **Requires Starter+ plan.**",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "description": "BCP 47 locale code (e.g. `pt-BR`) to request a localized name. Adds `localized_name` (resolved via exact locale → base language → native name → English name fallback) and `matched_locale` (which tier matched) to each result; `name` is unaffected. **Supporter+ plans only** — silently omitted (not an error) on lower tiers. A malformed value is rejected with a `400` on every tier.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 7,
+              "pattern": "^[a-zA-Z]{2}(-[a-zA-Z]{2,4})?$"
+            }
+          },
+          {
+            "name": "include_translations",
+            "in": "query",
+            "description": "When `true`, includes the full `translations` field (JSON string keyed by language code). **Supporter+ plans only** — silently omitted (not an error) on lower tiers. Note that an explicit `fields=translations` also returns the field and takes precedence over this flag.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get source-linked cities of a county",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "X-Cache": {
+                "$ref": "#/components/headers/XCache"
+              },
+              "X-CSC-Plan": {
+                "$ref": "#/components/headers/XCSCPlan"
+              },
+              "X-CSC-Daily-Used": {
+                "$ref": "#/components/headers/XCSCDailyUsed"
+              },
+              "X-CSC-Daily-Limit": {
+                "$ref": "#/components/headers/XCSCDailyLimit"
+              },
+              "X-CSC-Monthly-Used": {
+                "$ref": "#/components/headers/XCSCMonthlyUsed"
+              },
+              "X-CSC-Monthly-Limit": {
+                "$ref": "#/components/headers/XCSCMonthlyLimit"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/City"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid `kind` value, or `type` used on a plan below Supporter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusError"
+                },
+                "example": {
+                  "status": "error",
+                  "message": "Field \"type\" is not available on your current plan."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/FeatureRestricted"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "404": {
+            "description": "Country, state or county not found. A valid parent with no matching list rows returns an empty array.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusError"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -2629,10 +3271,10 @@
         "description": "City object. Fields returned depend on your plan's data access level. Basic tier plans receive `id`, `name` and `kind` by default.",
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "Unique identifier",
-            "example": 57606
+            "example": "133024",
+            "pattern": "^[0-9]+$"
           },
           "name": {
             "type": "string",
@@ -2642,23 +3284,25 @@
           "kind": {
             "type": "string",
             "enum": ["settlement", "administrative", "section", "unknown"],
-            "description": "Derived classification of the place, computed from `type`. Returned on every tier, including **Basic**. See [City Types](https://docs.countrystatecity.in/database/city-types).",
+            "description": "Derived from source type, country and name, including country-specific territorial exceptions. Available on every tier. See the City Types guide.",
             "example": "settlement"
           },
           "state_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Parent state ID. **Coordinates tier and above.**"
+            "type": "string",
+            "description": "Parent state ID. **Coordinates tier and above.**",
+            "pattern": "^[0-9]+$",
+            "nullable": true
           },
           "state_code": {
             "type": "string",
             "description": "Parent state ISO2 code. **Coordinates tier and above.**",
-            "example": "MH"
+            "example": "MH",
+            "nullable": true
           },
           "country_id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Parent country ID. **Coordinates tier and above.**"
+            "type": "string",
+            "description": "Parent country ID. **Coordinates tier and above.**",
+            "pattern": "^[0-9]+$"
           },
           "country_code": {
             "type": "string",
@@ -2682,10 +3326,10 @@
             "example": "Asia/Kolkata"
           },
           "population": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "nullable": true,
-            "description": "Population count. **Coordinates tier and above.**"
+            "description": "Population count. **Coordinates tier and above.**",
+            "pattern": "^[0-9]+$"
           },
           "type": {
             "type": "string",
@@ -2698,10 +3342,10 @@
             "description": "Administrative level. **Coordinates tier and above.**"
           },
           "parent_id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "nullable": true,
-            "description": "Parent city ID. **Coordinates tier and above.**"
+            "description": "Parent city ID. **Coordinates tier and above.**",
+            "pattern": "^[0-9]+$"
           },
           "native": {
             "type": "string",
@@ -2730,6 +3374,19 @@
             "nullable": true,
             "description": "Which fallback tier satisfied the `locale` request: the exact locale (e.g. `pt-BR`), its base language (e.g. `pt`), `native`, or `en` (English fallback). Only present when `locale` was supplied. **Supporter+ plans only** — silently omitted on lower tiers.",
             "example": "en"
+          },
+          "population_year": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Source reference year for population, not the import year. Unknown years remain null. Same coordinates/full access as population.",
+            "example": null
+          },
+          "county_id": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "nullable": true,
+            "description": "Explicit source county link; null when unknown. Coordinates/full access.",
+            "example": null
           }
         },
         "required": ["id", "name"]
@@ -3300,6 +3957,19 @@
             "nullable": true,
             "description": "Native-script name if it scored higher than the English name; `null` otherwise",
             "example": null
+          },
+          "population_year": {
+            "type": "integer",
+            "nullable": true,
+            "description": "City results only: nullable source population reference year. Coordinates/full access; not inferred from the import date.",
+            "example": null
+          },
+          "county_id": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "nullable": true,
+            "description": "City results only: explicit nullable source county ID. Coordinates/full access.",
+            "example": null
           }
         },
         "required": ["id", "name", "match_score"]
@@ -3468,6 +4138,19 @@
             "type": "number",
             "description": "Straight-line distance from the search origin in kilometers",
             "example": 3.42
+          },
+          "population_year": {
+            "type": "integer",
+            "nullable": true,
+            "description": "City results only: nullable source population reference year. Coordinates/full access; not inferred from the import date.",
+            "example": null
+          },
+          "county_id": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "nullable": true,
+            "description": "City results only: explicit nullable source county ID. Coordinates/full access.",
+            "example": null
           }
         },
         "required": ["id", "name", "distance_km"]
@@ -3637,11 +4320,11 @@
             "type": "string",
             "pattern": "^[0-9]+$",
             "description": "Unique identifier, as a numeric string",
-            "example": "670115"
+            "example": "670117"
           },
           "code": {
             "type": "string",
-            "description": "Postcode as stored, original spacing and casing preserved",
+            "description": "Canonical code as stored. Lookups trim, uppercase and collapse repeated whitespace.",
             "example": "11104"
           },
           "country_code": { "type": "string", "description": "ISO2 country code", "example": "LK" },
@@ -3660,7 +4343,7 @@
           "type": {
             "type": "string",
             "nullable": true,
-            "description": "Source-provided classification (not a fixed enum), e.g. `full`, `area`, `fsa`, `po_box`, `street`",
+            "description": "Source classification, not a fixed enum. Current installed release uses full, area and fsa; future sources can add types.",
             "example": "full"
           },
           "country_id": {
@@ -3686,18 +4369,19 @@
             "type": "number",
             "nullable": true,
             "description": "Latitude. **Coordinates tier and above.**",
-            "example": 6.9906677
+            "example": 6.9779
           },
           "longitude": {
             "type": "number",
             "nullable": true,
             "description": "Longitude. **Coordinates tier and above.**",
-            "example": 79.8931709
+            "example": 79.8898
           },
           "source": {
             "type": "string",
             "nullable": true,
-            "description": "Originating data source. **Full tier only.**"
+            "description": "Originating data source. **Full tier only.**",
+            "example": "geonames-postal"
           },
           "wikiDataId": {
             "type": "string",
@@ -3724,7 +4408,7 @@
                 "description": "Normalised code used for matching (trimmed, uppercased, repeated spaces collapsed)",
                 "example": "11104"
               },
-              "match_count": { "type": "integer", "example": 3 }
+              "match_count": { "type": "integer", "example": 2 }
             }
           }
         },
@@ -3805,6 +4489,142 @@
           }
         },
         "required": ["status", "message"]
+      },
+      "CountyState": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "code"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "County": {
+        "type": "object",
+        "description": "Source county. Basic fields include identity, country/primary-state links and complete states membership. Geographic operational columns are never exposed.",
+        "required": [
+          "id",
+          "name",
+          "country_id",
+          "country_code",
+          "states"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9]+$",
+            "example": "14024"
+          },
+          "name": {
+            "type": "string",
+            "example": "Taupō District"
+          },
+          "country_id": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "country_code": {
+            "type": "string",
+            "example": "NZ"
+          },
+          "state_id": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[0-9]+$",
+            "description": "Primary source state ID; can be null, including for counties spanning multiple states."
+          },
+          "state_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Primary state code; preserve null instead of choosing the first state."
+          },
+          "states": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CountyState"
+            },
+            "description": "Complete source state memberships, including on state-filtered results. Empty when no state link is known."
+          },
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "description": "Coordinates/full access."
+          },
+          "type_local": {
+            "type": "string",
+            "nullable": true,
+            "description": "Coordinates/full access."
+          },
+          "native": {
+            "type": "string",
+            "nullable": true,
+            "description": "Coordinates/full access."
+          },
+          "timezone": {
+            "type": "string",
+            "nullable": true,
+            "description": "Coordinates/full access."
+          },
+          "level": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Coordinates/full access."
+          },
+          "parent_id": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[0-9]+$",
+            "description": "Coordinates/full access."
+          },
+          "population": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[0-9]+$",
+            "description": "Coordinates/full access."
+          },
+          "latitude": {
+            "type": "string",
+            "nullable": true,
+            "description": "Numeric coordinate serialized as a string. Coordinates/full access."
+          },
+          "longitude": {
+            "type": "string",
+            "nullable": true,
+            "description": "Numeric coordinate serialized as a string. Coordinates/full access."
+          },
+          "translations": {
+            "type": "string",
+            "nullable": true,
+            "description": "Full access; localization/translation output follows the geographic endpoint query flags."
+          },
+          "wikiDataId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Full access; localization/translation output follows the geographic endpoint query flags."
+          },
+          "localized_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Full access; localization/translation output follows the geographic endpoint query flags."
+          },
+          "matched_locale": {
+            "type": "string",
+            "nullable": true,
+            "description": "Full access; localization/translation output follows the geographic endpoint query flags."
+          }
+        }
       }
     },
     "responses": {
