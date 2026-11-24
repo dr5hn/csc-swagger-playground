@@ -12,7 +12,7 @@
       "name": "Creative Commons Attribution 4.0",
       "url": "https://creativecommons.org/licenses/by/4.0/"
     },
-    "version": "2.5.0"
+    "version": "2.6.0"
   },
   "servers": [
     {
@@ -1975,7 +1975,7 @@
       "get": {
         "tags": ["Changes"],
         "summary": "List data changes",
-        "description": "Returns additions, removals, and updates to country, state, and city records, oldest first. Changes are retained for 90 days. Use this feed to keep a local copy in sync instead of downloading the full dataset again.\n\nPagination is stable: the first request fixes the result set, and every `next_page_token` continues through that same snapshot. Changes published after page one are not added to later pages; start a new request to receive them. The token also carries the original filters, is valid for 24 hours, and must be treated as opaque.\n\nFields inside `old_values` and `new_values` follow the caller's data access level.\n\n**Availability:** Professional and Business plans only. [Compare plans](https://countrystatecity.in/pricing?source=api_playground&campaign=data_change_feed).",
+        "description": "Returns additions, removals, and updates to country, state, city, county, and postcode records, oldest first. Changes are retained for 90 days. Use this feed to keep a local copy in sync instead of downloading the full dataset again.\n\nPagination is stable: the first request fixes the result set, and every `next_page_token` continues through that same snapshot. Changes published after page one are not added to later pages; start a new request to receive them. The token also carries the original filters, is valid for 24 hours, and must be treated as opaque.\n\nUnfiltered pages can contain all five place types. New county/postcode history starts after baseline extension, without retroactive additions. County state memberships and duplicate postcode localities are preserved by stable IDs.\n\nFields inside `old_values` and `new_values` follow the caller's data access level.\n\n**Availability:** Professional and Business, or custom plans with dataChangeFeed enabled. [Compare plans](https://countrystatecity.in/pricing?source=api_playground&campaign=data_change_feed).",
         "operationId": "listChanges",
         "parameters": [
           {
@@ -1990,12 +1990,12 @@
             "in": "query",
             "description": "Return changes for one place type",
             "required": false,
-            "schema": { "type": "string", "enum": ["country", "state", "city"], "example": "city" }
+            "schema": { "type": "string", "enum": ["country", "state", "city", "county", "postcode"], "example": "city" }
           },
           {
             "name": "country_code",
             "in": "query",
-            "description": "Return changes for a country and its states and cities. Uses an ISO 3166-1 alpha-2 code.",
+            "description": "Return changes for a country and its states, cities, counties, and postcodes. Uses an ISO 3166-1 alpha-2 code.",
             "required": false,
             "schema": { "type": "string", "minLength": 2, "maxLength": 2, "pattern": "^[A-Za-z]{2}$", "example": "IN" }
           },
@@ -4178,7 +4178,7 @@
           },
           "place_type": {
             "type": "string",
-            "enum": ["country", "state", "city"],
+            "enum": ["country", "state", "city", "county", "postcode"],
             "example": "city"
           },
           "place_id": {
@@ -4443,28 +4443,30 @@
           "dataVersion": {
             "type": "string",
             "description": "`<source-release>-<YYYY.MM.DD>`; the date is when the release was imported into the API. Same value as the `X-CSC-Data-Version` header.",
-            "example": "v3.2-export.7-2026.07.30"
+            "example": "v6.2.0-export.1-2026.11.24"
           },
           "sourceRelease": {
             "type": "string",
             "description": "Upstream release tag. Compare this, not `dataVersion`, to check parity with the npm packages.",
-            "example": "v3.2-export.7"
+            "example": "v6.2.0-export.1"
           },
           "updatedAt": {
             "type": "string",
             "format": "date-time",
             "description": "When the release was imported (UTC)",
-            "example": "2026-07-30T09:01:18.000Z"
+            "example": "2026-11-24T09:09:46.944Z"
           },
           "recordCounts": {
             "type": "object",
-            "description": "Row counts snapshotted at import time",
+            "description": "Row counts snapshotted at import time; county/postcode counts are absent in older manifests",
             "properties": {
               "regions": { "type": "integer", "example": 6 },
               "subregions": { "type": "integer", "example": 22 },
               "countries": { "type": "integer", "example": 250 },
-              "states": { "type": "integer", "example": 5308 },
-              "cities": { "type": "integer", "example": 152970 }
+              "states": { "type": "integer", "example": 5327 },
+              "cities": { "type": "integer", "example": 171345 },
+              "counties": { "type": "integer", "example": 14058 },
+              "postcodes": { "type": "integer", "example": 728556 }
             }
           }
         },
